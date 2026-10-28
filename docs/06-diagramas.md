@@ -93,7 +93,7 @@ sequenceDiagram
     participant Q as Fila (BullMQ)
     participant WK as Worker
 
-    U->>W: POST /api/v1/roblox/link/start
+    U->>W: GET /api/v1/roblox/link/start (302)
     W-->>U: redirect apis.roblox.com/oauth/v1/authorize (openid profile, state assinado 10 min)
     U->>R: consentimento
     R->>W: callback ?code&state
@@ -122,10 +122,10 @@ sequenceDiagram
     participant O as Outbox→Worker→Discord
 
     A->>C: /admin start (autocomplete de confrontos pendentes)
-    C->>API: POST /matches/:id/start
+    C->>API: POST /admin/matches/:id/start
     API->>PG: BEGIN; UPDATE matches SET status='IN_PROGRESS', started_at=now() WHERE id=? AND status='PENDING'
     alt rowCount = 1
-        PG->>PG: match_events(iniciar) + audit + outbox(match_started); COMMIT
+        PG->>PG: match_events(iniciar) + audit + outbox(match.started); COMMIT
         API-->>C: 200 {match}
         O->>O: publica log público (retry com backoff)
     else rowCount = 0
@@ -134,9 +134,9 @@ sequenceDiagram
     end
 
     A->>C: /admin finalizar (select entre teamA/teamB)
-    C->>API: POST /matches/:id/finish {winnerTeamId}
+    C->>API: POST /admin/matches/:id/finish {winnerTeamId}
     API->>PG: valida winner ∈ {A,B}; UPDATE ... WHERE status='IN_PROGRESS'
-    PG->>PG: avança chaveamento + match_events + audit + outbox(match_finished); COMMIT
+    PG->>PG: avança chaveamento + match_events + audit + outbox(match.finished); COMMIT
     API-->>C: 200 {match, nextMatch}
     O->>O: log "Equipe X venceu em 14m32s"
 ```

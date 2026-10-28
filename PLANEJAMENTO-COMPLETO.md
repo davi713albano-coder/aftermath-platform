@@ -1,27 +1,30 @@
-﻿# AFTERMATH TOURNAMENT PLATFORM — PLANEJAMENTO COMPLETO (DOCUMENTO UNICO)
+﻿# AFTERMATH TOURNAMENT PLATFORM - PLANEJAMENTO COMPLETO (DOCUMENTO UNICO)
 
 > **O que e este arquivo:** consolidacao integral do planejamento da plataforma de torneios
 > do jogo Roblox **Aftermath** (site + painel admin + bot Discord + backend compartilhado).
-> Ele foi gerado automaticamente a partir dos arquivos individuais do repositorio
-> `aftermath-platform` em **28/10/2026** — nenhum conteudo foi alterado ou resumido.
+> Gerado automaticamente a partir dos arquivos individuais do repositorio **aftermath-platform**
+> em **28/10/2026**, ja com a **revisao tecnica v2** incorporada - nenhum conteudo foi alterado ou resumido.
 >
-> **Como ler:** o documento esta dividido em 22 partes (DOCUMENTO 1 a 21 + este preambulo, que equivale ao README do repositorio).
-> Cada secao comeca com um separador "=====" indicando o arquivo de origem. A numeracao
-> dos DOCUMENTOS corresponde aos entregáveis pedidos (resumo executivo, pesquisa web,
-> arquitetura, modelo de dados, API, permissoes, fluxos, testes, deploy, riscos, roadmap).
+> **Como ler:** o documento esta dividido em 23 partes (DOCUMENTO 0 a 22), onde o
+> DOCUMENTO 0 e o README do repositorio. Cada secao comeca com um separador indicando o arquivo de origem.
 >
-> **Para um assistente de IA:** trate cada secao como fonte autoritativa daquela area;
-> as fontes de pesquisa citam URL e data de consulta (28/10/2026); afirmacoes marcadas
-> [CONFIRMADO] / [TESTAR] / [INCERTO] indicam o grau de verificacao.
+> **Para um assistente de IA:** trate cada secao como fonte autoritativa daquela area; as fontes
+> de pesquisa citam URL e data de consulta (28/10/2026); afirmacoes marcadas [CONFIRMADO] /
+> [TESTAR] / [INCERTO] indicam o grau de verificacao. Contratos de API e catalogo de eventos:
+> DOCUMENTO 9 (docs/08-api-contratos.md), secoes 8.0 (convencoes canonicas) e 8.10 (eventos).
+> UI track do Google AI Studio: DOCUMENTO 22 (docs/21-ai-studio-integration.md).
 
 ---
+
 <!-- ================================================================ -->
-<!-- DOCUMENTO 0/21 | ARQUIVO ORIGEM: README.md -->
+<!-- DOCUMENTO 0/22 | ARQUIVO ORIGEM: README.md -->
 <!-- ================================================================ -->
+
 # Aftermath Tournament Platform — Planejamento
 
 > Status: **FASE DE PLANEJAMENTO** — nenhum código de produto foi escrito ainda.
 > Pesquisa web realizada em **28/10/2026**. Fontes oficiais citadas em `docs/03-pesquisa-web.md`.
+> **Revisão técnica v2 aplicada em 28/10/2026** — docs 03, 05–08, 10–15, 17, 19–21 revisados; contratos e eventos canônicos centralizados em `docs/08-api-contratos.md`.
 
 Plataforma profissional de torneios para o jogo Roblox **Aftermath** (Place `15327728308`, Universe `5286749994`): site público, área de jogadores, painel administrativo, bot Discord e backend compartilhado com **fonte única de verdade**.
 
@@ -50,6 +53,7 @@ Plataforma profissional de torneios para o jogo Roblox **Aftermath** (Place `153
 | [`docs/18-deploy-operacao.md`](docs/18-deploy-operacao.md) | Deploy, variáveis de ambiente, backups, monitoramento |
 | [`docs/19-riscos-decisoes.md`](docs/19-riscos-decisoes.md) | Riscos, incertezas, alternativas e decisões pendentes |
 | [`docs/20-roadmap.md`](docs/20-roadmap.md) | Roadmap em fases pequenas, ordenadas e verificáveis |
+| [`docs/21-ai-studio-integration.md`](docs/21-ai-studio-integration.md) | Integração com Google AI Studio (UI track): contratos, regras de port, fluxo de PR |
 
 ## Identificadores do projeto (configuráveis, nunca código fixo)
 
@@ -61,18 +65,21 @@ Plataforma profissional de torneios para o jogo Roblox **Aftermath** (Place `153
 
 Esses identificadores **não substituem autenticação**; são apenas sementes de configuração, com procedimento seguro de inicialização descrito em `docs/10-fluxos-auth.md`.
 
-## Decisões que exigem aprovação
+## Decisões
 
-A lista consolidada está em [`docs/19-riscos-decisoes.md`](docs/19-riscos-decisoes.md) — inclui escolha de hosting, estratégia de sessão, fila, e o risco crítico do OAuth2 do Roblox estar em **beta com limite de 10 usuários** até aprovação em produção.
+A lista consolidada está em [`docs/19-riscos-decisoes.md`](docs/19-riscos-decisoes.md). Após a **revisão técnica v2 (28/10/2026)**, estão **RESOLVIDAS**: D-02 a D-09 e D-11 (API no Next, sessão JWT, BullMQ+Redis, sem armazenar tokens Roblox, ordem da verificação de acesso, AI Studio só UI, eliminação simples, cadeia de hash na P5, política de suplentes). **Pendentes** (não bloqueiam o início): **D-01** hosting, **D-10** domínio, **D-12** sua aprovação do roadmap. O risco crítico do OAuth2 Roblox (modo privado ≤10 usuários até aprovação de produção, com processo oficial de review) permanece mapeado como **R-1**.
 
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 1/21 | ARQUIVO ORIGEM: docs/00-indice.md -->
+<!-- DOCUMENTO 1/22 | ARQUIVO ORIGEM: docs/00-indice.md -->
 <!-- ================================================================ -->
+
 # 00 — Índice e mapa de entregáveis
 
 Requisito original: 15 entregáveis antes de implementar. Mapa abaixo mostra onde cada um está.
+
+> **Revisão técnica v2 — 28/10/2026**: docs 03, 05, 06, 07, 08, 10, 11, 12, 13, 14, 15, 17, 19 e 20 atualizados e `docs/21-ai-studio-integration.md` criado; `PLANEJAMENTO-COMPLETO.md` regenerado. As convenções canônicas da API (§8.0) e o catálogo de eventos (§8.10) em `08` são a referência única — nenhuma variante de nome de evento ou endpoint é válida em outro documento.
 
 | # | Entregável exigido | Documento |
 |---|---|---|
@@ -95,6 +102,7 @@ Requisito original: 15 entregáveis antes de implementar. Mapa abaixo mostra ond
 ## Anexos
 
 - `04-reuso-repositorio-atual.md` — inspeção do repositório existente (`Downloads/ap de campeonato`, monorepo "elite-clubs" para EA FC Pro Clubs). Nada será destruído; o planejamento identifica o que reutilizar, adaptar ou descartar.
+- `21-ai-studio-integration.md` — integração com o Google AI Studio (UI track): pacote de contexto, regras de port e fluxo de PR.
 
 ## Convenções
 
@@ -105,8 +113,9 @@ Requisito original: 15 entregáveis antes de implementar. Mapa abaixo mostra ond
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 2/21 | ARQUIVO ORIGEM: docs/01-resumo-executivo.md -->
+<!-- DOCUMENTO 2/22 | ARQUIVO ORIGEM: docs/01-resumo-executivo.md -->
 <!-- ================================================================ -->
+
 # 01 — Resumo executivo
 
 ## O produto
@@ -147,8 +156,9 @@ Monorepo TypeScript (pnpm workspaces, padrão já usado no repositório atual) c
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 3/21 | ARQUIVO ORIGEM: docs/02-requisitos.md -->
+<!-- DOCUMENTO 3/22 | ARQUIVO ORIGEM: docs/02-requisitos.md -->
 <!-- ================================================================ -->
+
 # 02 — Requisitos
 
 Legenda: **RF** = requisito funcional; **RNF** = requisito não funcional. "Fase" indica a fase do roadmap (`20-roadmap.md`) em que entra.
@@ -223,8 +233,9 @@ Legenda: **RF** = requisito funcional; **RNF** = requisito não funcional. "Fase
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 4/21 | ARQUIVO ORIGEM: docs/03-pesquisa-web.md -->
+<!-- DOCUMENTO 4/22 | ARQUIVO ORIGEM: docs/03-pesquisa-web.md -->
 <!-- ================================================================ -->
+
 # 03 — Relatório de pesquisa web
 
 **Data de consulta de todas as fontes: 28/10/2026.**
@@ -241,7 +252,7 @@ Classificação: ✅ CONFIRMADO (lido na fonte oficial nesta sessão) · 🧪 TE
 | Roblox OAuth2 | https://create.roblox.com/docs/en-us/cloud/auth/oauth2-reference.md · `/oauth2-overview` · `/oauth2-registration` · `/oauth2-develop` | ✅ | **Beta**; code flow com PKCE opcional; código de autorização vive **1 minuto**; access token **15 min**; refresh **90 dias** uso único; userinfo claims (`sub`, `name`, `preferred_username`, `picture`…); redirect deve ser HTTPS/localhost; app não aprovado fica em **modo privado, máx. 10 usuários** |
 | Roblox Users API | https://create.roblox.com/docs/en-us/cloud/reference/features/users.md (base `apis.roblox.com`; legado `users.roblox.com/v1`) | ✅ | Busca por username/ID; matriz de auth (API key / OAuth2 / cookie) varia por endpoint |
 | Roblox Thumbnails | https://create.roblox.com/docs/en-us/cloud/reference/domains/thumbnails.md · `/features/thumbnails` | ✅ | `/v1/users/avatar-headshot` (headshots CSV); limite exemplar 100/min por autorização OAuth2 |
-| Roblox Inventários | https://create.roblox.com/docs/en-us/cloud/reference/features/inventories.md · `inventory.roblox.com/docs/json/v1` | ✅/🧪 | `is-owned` existe e é público; visibilidade depende de privacidade do usuário; `can-view-inventory` existe como alternativa; **formato exato do corpo de resposta do `is-owned` a confirmar por probe** |
+| Roblox Inventários | https://create.roblox.com/docs/en-us/cloud/reference/features/inventories.md · `inventory.roblox.com/docs/json/v1` | ✅/🧪 | `is-owned` existe e é público (sem `.ROBLOSECURITY`); visibilidade depende de privacidade do usuário; `can-view-inventory` existe como alternativa; **o corpo exato da resposta do `is-owned` NÃO está documentado publicamente** (o Swagger expõe apenas o sumário) → probe obrigatório (§3.4); thread oficial de 2020 relata que o `is-owned` historicamente **ignorava** configurações de privacidade — comportamento atual a validar |
 | Endpoint informado pelo dono | `GET https://inventory.roblox.com/v1/users/{robloxId}/items/Place/15327728308/is-owned` | 🧪 | Testado desta sessão: **403** para user 1 (pode ser "não possui o item", privacidade OU bloqueio anti-bot de IP de datacenter — discriminação no probe §3.4) |
 | Google AI Studio Build + GitHub | https://ai.google.dev/gemini-api/docs/aistudio-build-mode (publicado 26/10/2026) · https://aistudio.google.com/learn/sync-your-ai-studio-apps-with-github · `/docs/aistudio-deploying` | ✅ | Sincronização bidirecional com GitHub (push com commits gerados por IA, pull de IDE); import de repositório; deploy para Cloud Run (tier inicial: 2 apps grátis) |
 | Next.js | https://nextjs.org/blog/next-16 · `/blog/next-16-4` (06/10/2026) | ✅ | Next 16 estável (Turbopack default, Cache Components, React 19.2); 16.4 recomenda Cache Components para todo app novo; `middleware.ts` renomeado para `proxy.ts` |
@@ -258,7 +269,9 @@ Classificação: ✅ CONFIRMADO (lido na fonte oficial nesta sessão) · 🧪 TE
 - Comandos de guilda propagam imediatamente; globais demoram — deploy de comandos é script separado (padrão já usado no repositório atual) [CONFIRMADO].
 
 ### Roblox
-- **OAuth2 beta** [CONFIRMADO]: registrar app em `create.roblox.com/dashboard/credentials`; redirect HTTPS; até 10 redirect URLs; **app não aprovado = máx. 10 usuários** ⇒ risco crítico → pedir aprovação de produção na fase P1. `sub` do userinfo é o ID estável; username/display name mudam ⇒ nunca chave.
+- **OAuth2 (status)** [CONFIRMADO]: a página oficial de referência exibida nesta consulta (28/10/2026) ainda traz aviso de **beta**; porém o anúncio oficial de **GA (disponibilidade geral) do Open Cloud OAuth 2.0** é de 28/09/2023 (DevForum). Tratar como estável com cautela: monitorar o aviso da página a cada release.
+- **OAuth2 (registro e produção)** [CONFIRMADO — `oauth2-registration`]: registrar app em `create.roblox.com/dashboard/credentials`; redirect HTTPS (fora de localhost); até 10 redirect URLs. **App recém-criado fica em modo privado com limite de 10 usuários únicos.** Para produção é obrigatório **submeter à revisão** ("Edit and Publish → Submit for Review"): a submissão exige **vídeo de demonstração e justificativa** (usados apenas na revisão, não públicos); solicitar **apenas os escopos mínimos** (Roblox não aprova escopos para uso futuro); durante a revisão o app não pode ser editado nem nova submissão enviada; aprovado, o app vai para modo público e **não pode voltar ao privado**. Requisito prévio: a conta que registra/publica o app precisa estar com **ID verificado** (account verification). `sub` do userinfo é o ID estável; username/display name mudam ⇒ nunca chave.
+- **Users API via OAuth2** [CONFIRMADO — anúncio oficial]: endpoints de User sob token OAuth2 têm limite exemplar de **10 req/min por token** (1.000/min por API key) — reforça o orçamento global do worker.
 - **Verificação de acesso ao jogo** [TESTAR → probe]:
   - `GET /v1/users/{id}/items/Place/{placeId}/is-owned` — público, sem auth; hipóteses de contrato: 200 `{"robloxId": <id>}` quando possui; 403 quando não possui ou quando inventário é privado (mensagens distintas); 429 em excesso.
   - `GET /v1/users/{id}/can-view-inventory` → `{"canView": bool}` usado para distinguir "privacidade" de "não possui".
@@ -296,8 +309,9 @@ Classificação: ✅ CONFIRMADO (lido na fonte oficial nesta sessão) · 🧪 TE
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 5/21 | ARQUIVO ORIGEM: docs/04-reuso-repositorio-atual.md -->
+<!-- DOCUMENTO 5/22 | ARQUIVO ORIGEM: docs/04-reuso-repositorio-atual.md -->
 <!-- ================================================================ -->
+
 # 04 — Inspeção do repositório atual e plano de reúso
 
 Repositório inspecionado (nesta sessão): `C:\Users\davia\Downloads\ap de campeonato`
@@ -344,8 +358,9 @@ ap de campeonato/
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 6/21 | ARQUIVO ORIGEM: docs/05-arquitetura.md -->
+<!-- DOCUMENTO 6/22 | ARQUIVO ORIGEM: docs/05-arquitetura.md -->
 <!-- ================================================================ -->
+
 # 05 — Arquitetura proposta
 
 ## 5.1 Visão geral
@@ -416,7 +431,7 @@ SSE (route handler Node, `runtime='nodejs'`, heartbeat 25 s, `Last-Event-ID`) pa
 2. Route handler valida Zod + permissão (banco) → chama `core.match.finish()` dentro de transação Prisma:
    - `UPDATE matches SET status='COMPLETED', winner_team_id=..., ended_at=now(), duration_seconds=... WHERE id=? AND status='IN_PROGRESS'` → `rowCount===1` obrigatório;
    - avança vencedora no confronto seguinte; grava `match_events` (histórico) e `audit_logs`;
-   - insere `outbox_events` (match_finished) — mesma transação.
+   - insere `outbox_events` (`match.finished`) — mesma transação.
 3. Commit. Resposta 200 com o estado novo.
 4. Worker consome outbox → publica no canal do Discord → marca `DELIVERED` + `discord_message_id`. Falha → retry com backoff; `DEAD` após N tentativas → alarme.
 5. SSE empurra snapshot do chaveamento; clientes atualizam.
@@ -426,8 +441,9 @@ Nenhum componente mantém cópia: site e bot leem o mesmo banco via a mesma API.
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 7/21 | ARQUIVO ORIGEM: docs/06-diagramas.md -->
+<!-- DOCUMENTO 7/22 | ARQUIVO ORIGEM: docs/06-diagramas.md -->
 <!-- ================================================================ -->
+
 # 06 — Diagramas
 
 ## 6.1 Diagrama de componentes
@@ -523,7 +539,7 @@ sequenceDiagram
     participant Q as Fila (BullMQ)
     participant WK as Worker
 
-    U->>W: POST /api/v1/roblox/link/start
+    U->>W: GET /api/v1/roblox/link/start (302)
     W-->>U: redirect apis.roblox.com/oauth/v1/authorize (openid profile, state assinado 10 min)
     U->>R: consentimento
     R->>W: callback ?code&state
@@ -552,10 +568,10 @@ sequenceDiagram
     participant O as Outbox→Worker→Discord
 
     A->>C: /admin start (autocomplete de confrontos pendentes)
-    C->>API: POST /matches/:id/start
+    C->>API: POST /admin/matches/:id/start
     API->>PG: BEGIN; UPDATE matches SET status='IN_PROGRESS', started_at=now() WHERE id=? AND status='PENDING'
     alt rowCount = 1
-        PG->>PG: match_events(iniciar) + audit + outbox(match_started); COMMIT
+        PG->>PG: match_events(iniciar) + audit + outbox(match.started); COMMIT
         API-->>C: 200 {match}
         O->>O: publica log público (retry com backoff)
     else rowCount = 0
@@ -564,9 +580,9 @@ sequenceDiagram
     end
 
     A->>C: /admin finalizar (select entre teamA/teamB)
-    C->>API: POST /matches/:id/finish {winnerTeamId}
+    C->>API: POST /admin/matches/:id/finish {winnerTeamId}
     API->>PG: valida winner ∈ {A,B}; UPDATE ... WHERE status='IN_PROGRESS'
-    PG->>PG: avança chaveamento + match_events + audit + outbox(match_finished); COMMIT
+    PG->>PG: avança chaveamento + match_events + audit + outbox(match.finished); COMMIT
     API-->>C: 200 {match, nextMatch}
     O->>O: log "Equipe X venceu em 14m32s"
 ```
@@ -589,8 +605,9 @@ flowchart TB
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 8/21 | ARQUIVO ORIGEM: docs/07-modelo-dados.md -->
+<!-- DOCUMENTO 8/22 | ARQUIVO ORIGEM: docs/07-modelo-dados.md -->
 <!-- ================================================================ -->
+
 # 07 — Modelo de dados
 
 Convenções herdadas do repositório atual [CONFIRMADO como boas práticas]: PK UUID gerada pelo banco; `timestamptz`; snowflakes do Discord como `String`; enums nomeados; constraints UNIQUE como garantia definitiva de concorrência; histórico via tabelas de eventos + `AuditLog` append-only. **Sem campos de placar.**
@@ -641,10 +658,18 @@ Campos fortes: `name`, `description`, `rules_md`, `status` (DRAFT/REG_OPEN/REG_C
 | locked_at | congelada no sorteio |
 
 ### team_members
-`team_id`, `user_id`, `role` (OWNER/MEMBER/SUBSTITUTE), `joined_at`, `left_at?`.
-**Invariantes**:
+`team_id`, `tournament_id` (FK **denormalizada** na linha do membro — preenchida na transação de entrada e mantida em sync com `teams.tournament_id`; nunca editável isoladamente), `user_id`, `role` (OWNER/MEMBER/SUBSTITUTE), `joined_at`, `left_at?`.
+
+**Invariantes (regra definitiva — sem alternativas)**:
 - `@@unique([team_id, user_id])` — um vínculo por equipe;
-- partial unique: um usuário só tem **uma** participação ativa (`left_at IS NULL`) por torneio → implementado como unique index em `(user_id) WHERE left_at IS NULL AND role != 'SUBSTITUTE'` + `@@unique([tournament_id?])` via coluna derivada `tournament_id` na linha do membro (denormalizada p/ indexar) — alternativamente enforced transacionalmente + constraint excluída por política. Decisão final na implementação (detalhe em 12).
+- **Um usuário só tem UMA participação ativa por torneio — incluindo suplentes.** Implementação definitiva: coluna `tournament_id` denormalizada + **partial unique index**:
+  ```sql
+  CREATE UNIQUE INDEX uq_team_members_active_per_tournament
+    ON team_members (tournament_id, user_id)
+    WHERE left_at IS NULL;
+  ```
+  Sem exceção por `role`: suplente também não pode estar ativo em duas equipes. O Prisma não modela partial unique index → criar via migration SQL manual + teste de integração dedicado (16, §16.4).
+- **Concorrência de aceitação de convite**: a transação de accept executa como primeira instrução `SELECT pg_advisory_xact_lock(hashtextextended('team:' || :tournamentId || ':' || :userId, 0))`, depois revalida elegibilidade/vagas, insere e commita. Dois accepts paralelos do mesmo usuário (mesmo contra equipes diferentes) serializam no lock; o segundo encontra a participação já ativa e falha com `CONFLICT_TEAM_MEMBER`. A partial unique index permanece como **última linha de defesa**: o lock é otimização de contenção, a constraint é a invariante.
 
 ### invites
 | Campo | Notas |
@@ -683,10 +708,10 @@ Campos fortes: `name`, `description`, `rules_md`, `status` (DRAFT/REG_OPEN/REG_C
 `proposed jsonb`, `impacts jsonb`, `status` (PENDING/APPLIED/DISCARDED), `requested_by`. Suporta o modal "revise os impactos e confirme".
 
 ### public_events — feed público (fonte de verdade do log)
-`tournament_id`, `type` (MATCH_STARTED/MATCH_FINISHED/DRAW_CONFIRMED/BRACKET_UPDATED/ANNOUNCEMENT), `payload jsonb` (dados já **públicos**), `created_at`, `visibility`. O site lê daqui; o Discord é espelho.
+`tournament_id`, `type` — valores do **catálogo canônico de eventos** (08, §8.10): `match.started`, `match.finished`, `match.corrected`, `match.cancelled`, `match.walkover`, `draw.confirmed`, `draw.superseded`, `bracket.updated`, `tournament.config_changed`, `tournament.status_changed`, `tournament.announcement_published`, `team.created`, `team.disqualified`, `team.member_joined`, `team.member_left` —, `payload jsonb` (dados já **públicos**), `created_at`, `visibility`. O site lê daqui; o Discord é espelho. Eventos privados (convites, vínculo Roblox) vão apenas para `audit_logs`/outbox dirigido — nunca ao feed público.
 
 ### outbox_events — entrega Discord
-`dedup_key @unique` (ex.: `outbox:match_finished:<matchId>`), `type`, `target` (`channel_id` | `user_id`), `payload jsonb`, `status` (PENDING/DELIVERED/FAILED/DEAD), `attempts`, `next_attempt_at`, `discord_message_id?`, `created_at`. **Insert na mesma transação do domínio.**
+`dedup_key @unique` (ex.: `outbox:match.finished:<matchId>`), `type`, `target` (`channel_id` | `user_id`), `payload jsonb`, `status` (PENDING/DELIVERED/FAILED/DEAD), `attempts`, `next_attempt_at`, `discord_message_id?`, `created_at`. **Insert na mesma transação do domínio.**
 
 ### admin_grants — permissões granulares
 `discord_user_id` (chave por identidade Discord — grant existe antes do primeiro login), `permissions String[]` (enum fechado), `granted_by_discord_user_id`, `granted_at`, `revoked_at?`, `note?`. **Sem linha OWNER aqui**: dono é derivado de `OWNER_DISCORD_ID` + tabela `owner_bootstrap` (ver 10).
@@ -715,120 +740,167 @@ Ver `06-diagramas.md` §6.2.
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 9/21 | ARQUIVO ORIGEM: docs/08-api-contratos.md -->
+<!-- DOCUMENTO 9/22 | ARQUIVO ORIGEM: docs/08-api-contratos.md -->
 <!-- ================================================================ -->
-# 08 — API: endpoints e contratos
 
-Base: `/api/v1`. Contratos com schemas Zod em `packages/schemas` (mesma lib usada por web e bot). Erro padrão:
+# 08 — API: endpoints e contratos (referência canônica)
 
-```json
-{ "error": { "code": "CONFLICT_MATCH_STATUS", "message": "…", "details": { } } }
-```
+Base: **`/api/v1`** (route handlers do `apps/web`). Este documento é a **única fonte de contratos** para site, bot, worker e a UI track do AI Studio (21). Schemas Zod em `packages/schemas`, compartilhados por web e bot. **Nenhum outro documento pode definir endpoint, nome de evento ou formato de payload divergente.**
 
-Códigos: `VALIDATION_ERROR` (400) · `UNAUTHENTICATED` (401) · `FORBIDDEN` (403) · `NOT_FOUND` (404) · `CONFLICT_*` (409: `_MATCH_STATUS`, `_INVITE_STATE`, `_TEAM_MEMBER`, `_CONFIG_INCOMPATIBLE`, `_BRACKET_EXISTS`) · `RATE_LIMITED` (429 + `Retry-After`) · `UPSTREAM_*` (502/504 p/ Discord/Roblox) · `INTERNAL` (500).
+## 8.0 Convenções canônicas
 
-Autenticação: cookie de sessão (Auth.js) para navegadores; bot usa `Authorization: Bearer <SERVICE_TOKEN>` + `X-Acting-Discord-Id: <id>` (ator real, validado no banco). Sem credenciais no query string.
+| Tema | Regra |
+|---|---|
+| JSON | campos em `camelCase` |
+| IDs | sempre **string** (UUID interno, snowflake do Discord, ID Roblox) — nunca `number` (perda de precisão em snowflakes) |
+| Datas | ISO-8601 UTC com sufixo `Z` (`2026-10-28T18:00:00Z`); durações em segundos inteiros (`durationSeconds`) |
+| Enums | `UPPER_SNAKE_CASE` (`IN_PROGRESS`, `SINGLE_ELIMINATION`, `HAS_ACCESS`) |
+| Paginação | query `?page=1&limit=25` (máx. 100) → resposta `{ "items": [...], "page": 1, "limit": 25, "total": 42, "hasMore": true }` |
+| Erros | envelope único em **todos** os erros: `{ "error": { "code": "…", "message": "…", "details": { … } } }` (`details` opcional) |
+| Eventos | catálogo canônico §8.10 — nomes `dotted lowercase` em `public_events`, `outbox_events` e SSE; nenhuma variante (`match_started`, `MATCH_STARTED`) é válida |
+| Segredos | nunca em query string; `SERVICE_TOKEN` e cookies só em headers |
 
-## 8.1 Auth (Auth.js v5)
+**Classes de autenticação** (coluna "Auth" das tabelas abaixo):
+
+- `PUBLIC` — sem auth; somente dados públicos conforme `visibility` do torneio;
+- `SESSION` — cookie Auth.js (navegador);
+- `ADMIN` — SESSION + permissão granular **recarregada do banco a cada chamada** (09) — esconder botão na UI não é autorização;
+- `INTERNAL` — `Authorization: Bearer SERVICE_TOKEN` (bot/worker); quando houver ator humano: header `X-Acting-Discord-Id` (resolvido e autorizado no banco).
+
+**Idempotência**: mutações originadas no bot enviam header `Idempotency-Key` (derivada do `interactionId`); repetição devolve a resposta original sem novo efeito.
+
+**Códigos de erro**: `VALIDATION_ERROR` (400) · `UNAUTHENTICATED` (401) · `FORBIDDEN` (403) · `NOT_FOUND` (404) · `CONFLICT_*` (409: `_MATCH_STATUS`, `_INVITE_STATE`, `_TEAM_MEMBER`, `_CONFIG_INCOMPATIBLE`, `_BRACKET_EXISTS`, `_BRACKET_EDIT`, `_ROBLOX_LINKED`, `_CONFIRM_TOKEN`) · `RATE_LIMITED` (429 + `Retry-After`) · `UPSTREAM_*` (502/504 p/ Discord/Roblox) · `INTERNAL` (500).
+
+## 8.1 Auth (Auth.js v5) — fora de `/api/v1`
 
 | Método | Rota | Descrição |
 |---|---|---|
-| GET/POST | `/api/auth/[...nextauth]` | provider Discord (scope `identify`), callback, signout |
+| GET | `/api/auth/signin/discord` | inicia login Discord (scope `identify`) |
+| GET | `/api/auth/callback/discord` | callback OAuth2 (valida `state` anti-CSRF) |
+| POST | `/api/auth/signout` | logout (limpa cookie) — **é o único logout; não existe `/me/logout`** |
 
 ## 8.2 Sessão / perfil
 
-| Método | Rota | Permissão | Descrição |
+| Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| GET | `/me` | autenticado | user + roblox (nome/ID/avatar/estado acesso) + equipe atual + permissões efetivas |
-| POST | `/me/logout` | autenticado | encerra sessão |
+| GET | `/me` | SESSION | user + roblox (nome/ID/avatar/estado de acesso) + equipe ativa + permissões efetivas |
+| GET | `/me/invites` | SESSION | convites recebidos/enviados |
+| GET | `/me/permissions` | SESSION | o que o próprio usuário pode |
 
 ## 8.3 Roblox
 
-| Método | Rota | Permissão | Descrição |
+| Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| POST | `/roblox/link/start` | autenticado | gera state assinado (10 min) → redirect OAuth2 Roblox (`openid profile`) |
-| GET | `/roblox/callback` | — | valida state → token → userinfo → upsert `roblox_accounts`; 409 se robloxId já vinculado a outro usuário |
-| DELETE | `/roblox/link` | autenticado | desvincula (audit) |
-| GET | `/roblox/status` | autenticado | estado de acesso (HAS_ACCESS/NO_ACCESS/INCONCLUSIVE/UNKNOWN) + `nextAttemptAt` |
-| POST | `/roblox/access-check` | autenticado | força nova checagem (rate limit 5/min; fila) |
+| GET | `/roblox/link/start` | SESSION | gera `state` assinado (HMAC, 10 min, uso único) e responde **302** para o authorize do Roblox (`openid profile`) — navegação sempre via GET |
+| GET | `/roblox/callback` | — | valida state/nonce → token → userinfo → upsert `roblox_accounts`; 409 `_ROBLOX_LINKED` se o robloxId já pertence a outro usuário |
+| DELETE | `/roblox/link` | SESSION | desvincula (audit) |
+| GET | `/roblox/status` | SESSION | estado `HAS_ACCESS/NO_ACCESS/INCONCLUSIVE/UNKNOWN` + `nextAttemptAt` |
+| POST | `/roblox/access-check` | SESSION | força nova checagem (rate 5/min; fila do worker) |
 
 ## 8.4 Torneio e configuração
 
-| Método | Rota | Permissão | Descrição |
+| Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| GET | `/tournaments` | público | lista (respeita `visibility`) |
-| GET | `/tournaments/:id` | público | detalhes + config pública |
-| POST | `/admin/tournaments` | `tournaments.config` | cria (dono/admin) |
-| PATCH | `/admin/tournaments/:id/config` | `tournaments.config` | valida impacto; `?confirm=false` → 200 com `impacts` + `confirmToken`; `?confirm=true&token=…` → aplica |
-| POST | `/admin/tournaments/:id/status` | `tournaments.config` | transições de status com guardas |
+| GET | `/tournaments` | PUBLIC | lista (respeita `visibility`) |
+| GET | `/tournaments/:id` | PUBLIC | detalhes + config pública |
+| POST | `/admin/tournaments` | ADMIN `tournaments.config` | cria |
+| PATCH | `/admin/tournaments/:id/config` | ADMIN `tournaments.config` | sem `confirm`: 200 com `impacts` + `confirmToken`; com `confirm=true&token=…`: aplica (audita) |
+| POST | `/admin/tournaments/:id/status` | ADMIN `tournaments.config` | transições de status com guardas |
 
-**Impacts** (exemplos): `max_teams` abaixo das equipes confirmadas → `INCOMPATIBLE` (bloqueia); `players_per_team` mudou → lista equipes fora do novo tamanho (exige confirm; equipes incompatíveis ficam bloqueadas de READY); formato após chaveamento → bloqueado; datas — warnings.
+**Impacts** (exemplos): `max_teams` abaixo das equipes confirmadas → `INCOMPATIBLE` (bloqueia); `players_per_team`/`substitutes_per_team` mudos → lista equipes fora do novo tamanho (exige confirm; equipes incompatíveis perdem READY); formato após chaveamento → bloqueado; datas → warnings.
 
 ## 8.5 Equipes e convites
 
-| Método | Rota | Permissão | Descrição |
+| Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| GET | `/tournaments/:id/teams` | público (conforme visibility) | equipes + composição + prontas |
-| POST | `/teams` | autenticado (janela de inscrição) | cria equipe do jogador |
-| GET | `/teams/:id` | público/membro | detalhes |
-| PATCH | `/teams/:id` | owner da equipe ou `teams.manage` | renomear, etc. |
+| GET | `/tournaments/:id/teams` | PUBLIC* | equipes + composição + prontidão (*conforme `visibility`) |
+| GET | `/admin/tournaments/:id/teams` | ADMIN `teams.manage` | todas as equipes (todos os estados) + filtros — alimenta T12 |
+| POST | `/teams` | SESSION | cria equipe (janela de inscrição aberta) |
+| GET | `/teams/:id` | PUBLIC/membro | detalhes |
+| PATCH | `/teams/:id` | owner ou ADMIN `teams.manage` | renomear etc. |
 | POST | `/teams/:id/leave` | membro | sair (owner transfere ou bloqueia) |
-| POST | `/teams/:id/invites` | owner da equipe | cria convite (discordId validado; `dm_state` pode sair FAILED sem perder convite) |
-| GET | `/me/invites` | autenticado | recebidos/enviados |
-| POST | `/invites/:id/accept` | convidado | transação: convite→ACCEPTED + team_member (checa elegibilidade + vagas) |
-| POST | `/invites/:id/decline` | convidado | |
-| DELETE | `/invites/:id` | owner/`teams.manage` | cancela pendente |
+| POST | `/teams/:id/invites` | owner | cria convite (`dm_state` pode sair FAILED sem perder o convite) |
+| POST | `/invites/:id/accept` | convidado | transação com advisory lock + partial unique index (07/11) |
+| POST | `/invites/:id/decline` | convidado | transição com guarda |
+| DELETE | `/invites/:id` | owner ou ADMIN `teams.manage` | cancela pendente |
 
 ## 8.6 Sorteio e chaveamento
 
-| Método | Rota | Permissão | Descrição |
+| Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| GET | `/tournaments/:id/bracket` | público | chaveamento (matches, slots, estados, vencedores) |
-| POST | `/admin/tournaments/:id/draw/preview` | `draws.run` | prévia determinística (seed provisório) — NÃO persiste |
-| POST | `/admin/tournaments/:id/draw/confirm` | `draws.run` | seed novo cripto → grava `draws` + `bracket` + matches em transação; 409 se já existe bracket ativo com partidas iniciadas |
-| POST | `/admin/tournaments/:id/draw/redraw` | `bracket.manage` + dono | só se nenhuma partida IN_PROGRESS/COMPLETED; invalida bracket antigo (histórico mantido) |
-| GET | `/admin/tournaments/:id/draws` | `draws.run` | histórico |
+| GET | `/tournaments/:id/bracket` | PUBLIC | chaveamento (matches, slots, estados, vencedores) |
+| POST | `/admin/tournaments/:id/draw/preview` | ADMIN `draws.run` | prévia determinística (seed provisório) — **NÃO persiste** |
+| POST | `/admin/tournaments/:id/draw/confirm` | ADMIN `draws.run` | seed novo no servidor → grava `draws`+`brackets`+`matches`+locks em transação; 409 `_BRACKET_EXISTS` se já há bracket com partida iniciada |
+| POST | `/admin/tournaments/:id/draw/redraw` | ADMIN `bracket.manage` + dono | só com todas as partidas PENDING/CANCELLED; bracket antigo → SUPERSEDED (evento `draw.superseded`) |
+| GET | `/admin/tournaments/:id/draws` | ADMIN `draws.run` | histórico de sorteios |
+| POST | `/admin/brackets/:id/edits/preview` | ADMIN `bracket.manage` + dono | prévia de **edição manual** (mutações declarativas) + `confirmToken`; NÃO persiste (12, §12.6) |
+| POST | `/admin/brackets/:id/edits/confirm` | ADMIN `bracket.manage` + dono | aplica; `version++`; audit; outbox `bracket.updated`; 409 `_BRACKET_EDIT` se há partida IN_PROGRESS/COMPLETED |
 
 ## 8.7 Partidas
 
-| Método | Rota | Permissão | Descrição |
+| Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| GET | `/admin/tournaments/:id/matches?status=pending` | `matches.view` | lista p/ seleção (autocomplete/select do bot usa isto) |
-| POST | `/admin/matches/:id/start` | `matches.manage` | PENDING→IN_PROGRESS; timestamp do servidor; 409 se não PENDING |
-| POST | `/admin/matches/:id/finish` | `matches.manage` | `{winnerTeamId}`; valida ∈ {A,B}; calcula duração; avança chaveamento; outbox |
-| POST | `/admin/matches/:id/correct` | `matches.manage` + dono (se impacto) | novo vencedor; resposta inclui impactos; `confirm=true` aplica invalidação controlada dos confrontos dependentes (nunca os já iniciados) |
-| POST | `/admin/matches/:id/cancel` | `matches.manage` | cancela (razão obrigatória) |
-| POST | `/admin/matches/:id/walkover` | `matches.walkover` | W.O. com razão; `wo_grace_minutes` respeitado |
-| GET | `/admin/matches/:id/history` | `audit.view` ou responsável | `match_events` |
+| GET | `/admin/tournaments/:id/matches?status=` | ADMIN `matches.view` | lista p/ seleção (alimenta autocomplete/select do bot via §8.9) |
+| POST | `/admin/matches/:id/start` | ADMIN `matches.manage` | PENDING→IN_PROGRESS; timestamp `now()` do Postgres; 409 `_MATCH_STATUS` |
+| POST | `/admin/matches/:id/finish` | ADMIN `matches.manage` | `{winnerTeamId}`; valida ∈ {A,B}; duração calculada; avança bracket; **última rodada → torneio FINISHED** (12, §12.3) |
+| POST | `/admin/matches/:id/correct` | ADMIN `matches.manage` + dono | dry-run com `impacts` + `confirmToken`; confirm aplica invalidação controlada (13, §13.5); 409 se dependentes IN_PROGRESS/COMPLETED |
+| POST | `/admin/matches/:id/cancel` | ADMIN `matches.manage` | razão obrigatória |
+| POST | `/admin/matches/:id/walkover` | ADMIN `matches.walkover` | W.O. com razão; `wo_grace_minutes` respeitado |
+| GET | `/admin/matches/:id/history` | ADMIN `audit.view` | `match_events` (histórico da partida) |
 
-## 8.8 Administração e logs
-
-| Método | Rota | Permissão | Descrição |
-|---|---|---|---|
-| GET | `/admin/audit?target=&actor=&action=` | `audit.view` | paginado, append-only |
-| GET | `/admin/admins` / POST `/admin/admins` / DELETE `/admin/admins/:discordId` | OWNER (gerenciar admins) | concessão/revogação granular; admin não pode conceder (403) |
-| GET | `/me/permissions` | admin | o que o próprio admin pode |
-| GET | `/tournaments/:id/events` | público | feed público paginado |
-| GET | `/stream/tournaments/:id` | público | **SSE**: eventos `bracket`, `match`, `feed`; heartbeat 25 s; `Last-Event-ID` |
-| POST | `/admin/tournaments/:id/announcements` | `announcements.publish` | anúncio + outbox |
-
-## 8.9 Internos (worker/bot)
+## 8.8 Administração, logs e realtime
 
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
-| GET | `/internal/health` | service token | liveness web/api |
-| POST | `/internal/outbox/ack` | service token (worker) | marca DELIVERED/DEAD (worker já grava via Prisma; rota p/ reconciliação manual) |
-| GET | `/internal/bot/matches/select-list` | service token + ator | lista p/ string select (≤25) paginada |
+| GET | `/admin/audit?target=&actor=&action=&page=` | ADMIN `audit.view` | paginado, append-only |
+| GET · POST · DELETE | `/admin/admins`, `/admin/admins/:discordId` | OWNER | concessão/revogação granular; admin não pode conceder (403) |
+| GET | `/tournaments/:id/events?page=` | PUBLIC | feed público paginado (`public_events`) |
+| GET | `/stream/tournaments/:id` | SESSION ou PUBLIC conforme visibility | **SSE** — caminho completo: `/api/v1/stream/tournaments/:id`; eventos do catálogo §8.10; heartbeat 25 s; reconexão com `Last-Event-ID` |
+| POST | `/admin/tournaments/:id/announcements` | ADMIN `announcements.publish` | anúncio + outbox |
 
-## 8.10 Eventos internos (payloads de outbox/public_events)
+## 8.9 Internos (bot/worker)
 
-`match.started` `{matchId, tournamentId, teams, round}` · `match.finished` `{matchId, winner, durationSeconds}` · `draw.confirmed` `{drawId, size, teamsCount}` · `bracket.updated` `{version, reason}` · `announcement.published` `{title, excerpt}`. Payloads públicos não contêm IDs de admins nem dados privados.
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/internal/health` | INTERNAL | liveness web/api |
+| POST | `/internal/outbox/ack` | INTERNAL (worker) | marca DELIVERED/DEAD na reconciliação manual |
+| GET | `/internal/bot/select/matches?status=&page=&q=` | INTERNAL + ator | páginas de ≤25 confrontos p/ autocomplete/string select do bot |
+| GET | `/internal/bot/select/teams?status=&page=&q=` | INTERNAL + ator | páginas de ≤25 equipes |
+
+## 8.10 Catálogo canônico de eventos
+
+**Única fonte de nomes** para `public_events`, `outbox_events` e tópicos SSE. Nomes `dotted lowercase`; payloads `camelCase`. Payloads públicos não contêm IDs de admins nem dados privados. Eventos privados (convites, Roblox) vão para `audit_logs`/outbox dirigido — nunca ao feed público.
+
+| Evento | Origem | Payload (essência) |
+|---|---|---|
+| `tournament.created` | criação | `{tournamentId, name}` |
+| `tournament.config_changed` | config aplicada (pós-confirmação) | `{version, changedFields[]}` |
+| `tournament.status_changed` | transição de status | `{from, to}` (inclui FINISHED com campeão) |
+| `tournament.announcement_published` | anúncio | `{announcementId, title, excerpt}` |
+| `team.created` | criação de equipe | `{teamId, name}` |
+| `team.member_joined` | convite aceito | `{teamId, userId}` |
+| `team.member_left` | saída/remoção | `{teamId, userId}` |
+| `team.disqualified` | desqualificação | `{teamId, reason}` |
+| `invite.accepted` / `invite.declined` / `invite.expired` / `invite.cancelled` | convites (privados) | `{inviteId, teamId, userId}` |
+| `match.started` | admin | `{matchId, tournamentId, round, teams{a,b}}` |
+| `match.finished` | admin | `{matchId, winnerTeamId, durationSeconds}` |
+| `match.walkover` | admin | `{matchId, winnerTeamId, reason}` |
+| `match.corrected` | admin (pós-confirmação) | `{matchId, oldWinnerTeamId, newWinnerTeamId, reason}` |
+| `match.cancelled` | admin | `{matchId, reason}` |
+| `draw.confirmed` | sorteio confirmado | `{drawId, size, teamsCount}` |
+| `draw.superseded` | redraw | `{oldBracketId, newBracketId}` |
+| `bracket.updated` | avanço automático ou edição manual | `{version, reason}` |
+| `roblox.linked` / `roblox.unlinked` | vínculo (privado → audit) | `{userId}` |
+| `roblox.access_state_changed` | máquina de acesso (privado → audit) | `{robloxId, state}` |
+
+Dedup key do outbox: `outbox:<evento>:<id da entidade>` (ex.: `outbox:match.finished:<matchId>`). Heartbeat do SSE é comentário (`: ping`), não evento.
 
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 10/21 | ARQUIVO ORIGEM: docs/09-matriz-permissoes.md -->
+<!-- DOCUMENTO 10/22 | ARQUIVO ORIGEM: docs/09-matriz-permissoes.md -->
 <!-- ================================================================ -->
+
 # 09 — Matriz de permissões
 
 ## 9.1 Papéis
@@ -885,8 +957,9 @@ Regra central: **a interface esconder botões é conveniência; a autorização 
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 11/21 | ARQUIVO ORIGEM: docs/10-fluxos-auth.md -->
+<!-- DOCUMENTO 11/22 | ARQUIVO ORIGEM: docs/10-fluxos-auth.md -->
 <!-- ================================================================ -->
+
 # 10 — Fluxos de autenticação (Discord) e Roblox
 
 ## 10.1 Login Discord (OAuth2) [CONFIRMADO na doc oficial]
@@ -916,7 +989,7 @@ Validações de callback: `state` confere; `code` usado uma vez; erro do Discord
 Registro prévio (fase P1): app em `create.roblox.com/dashboard/credentials` com redirect `https://<domínio>/api/v1/roblox/callback` (HTTPS obrigatório fora de localhost) e escopos `openid profile`. **App não aprovado = limite de 10 usuários** → solicitar aprovação de produção imediatamente.
 
 Fluxo:
-1. Usuário autenticado clica "Vincular Roblox" → `POST /roblox/link/start` → server gera `state` assinado (HMAC com segredo do servidor, contém `userId`, expira em 10 min, uso único) e redireciona para `https://apis.roblox.com/oauth/v1/authorize?client_id=…&redirect_uri=…&scope=openid%20profile&response_type=code&state=…&nonce=…`.
+1. Usuário autenticado clica "Vincular Roblox" → **`GET /api/v1/roblox/link/start`** (navegação sempre via GET; resposta **302**): server gera `state` assinado (HMAC com segredo do servidor, contém `userId`, expira em 10 min, uso único) e responde `302 Location: https://apis.roblox.com/oauth/v1/authorize?client_id=…&redirect_uri=…&scope=openid%20profile&response_type=code&state=…&nonce=…`.
 2. Callback: valida `state` + `nonce` → `POST /oauth/v1/token` (client_secret_basic) → `GET /oauth/v1/userinfo`.
 3. Extrai: `sub` (Roblox ID), `preferred_username`, `name`, `picture`, `created_at` [CONFIRMADO].
 4. Upsert `roblox_accounts` com invariantes:
@@ -962,8 +1035,9 @@ Regras:
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 12/21 | ARQUIVO ORIGEM: docs/11-fluxos-equipes-convites.md -->
+<!-- DOCUMENTO 12/22 | ARQUIVO ORIGEM: docs/11-fluxos-equipes-convites.md -->
 <!-- ================================================================ -->
+
 # 11 — Fluxos: equipes, convites e elegibilidade
 
 ## 11.1 Criar equipe (jogador, site ou `/equipe criar`)
@@ -985,11 +1059,12 @@ Validações no backend (site ou bot — mesmo código):
 
 Envio da DM: o bot tenta DM **depois** do convite persistido. Falha (privacidade 50007 etc.) → `dm_state=FAILED`; convite continua `PENDING` e aceitável pelo site ou `/painel`. DM nunca é passo obrigatório.
 
-Aceitação (`POST /invites/:id/accept`) — transação única:
-1. `UPDATE invites SET status='ACCEPTED' WHERE id=? AND status='PENDING' AND expires_at>now()` → rowCount 1 obrigatório;
-2. inserir `team_members` (checa vagas + elegibilidade de novo, dentro da tx);
-3. respeitar invariante "1 equipe ativa por usuário por torneio" (partial unique + re-checagem na tx);
-4. audit + outbox (público apenas se config disser; convite em si é privado).
+Aceitação (`POST /invites/:id/accept`) — transação única, ordem fixa:
+0. **lock de contenção**: `SELECT pg_advisory_xact_lock(hashtextextended('team:' || :tournamentId || ':' || :inviteeId, 0))` — serializa accepts paralelos do mesmo usuário (mesmo que em equipes diferentes);
+1. `UPDATE invites SET status='ACCEPTED' WHERE id=? AND status='PENDING' AND expires_at>now()` → rowCount 1 obrigatório (senão 409 `CONFLICT_INVITE_STATE`);
+2. revalidar elegibilidade + vagas **dentro da tx** (titulares × suplentes conforme política);
+3. inserir `team_members` com `tournament_id` denormalizada — a **partial unique index** `(tournament_id, user_id) WHERE left_at IS NULL` (07, regra definitiva) bloqueia dupla participação ativa, **incluindo suplentes**;
+4. audit + outbox `team.member_joined` (feed público apenas se config disser; convite em si é privado).
 
 Recusa/cancelamento/expiração: transições de status com guarda `WHERE status='PENDING'`; expiração por job cron do worker (batch, idempotente).
 
@@ -1008,7 +1083,7 @@ Recusa/cancelamento/expiração: transições de status com guarda `WHERE status
 
 - Um usuário não pode estar em duas equipes ativas do mesmo torneio (invariante do banco; tentativa → `CONFLICT_TEAM_MEMBER`).
 - Troca de equipe = sair (deixa `left_at`) + ser aceito em outra; durante LOCKED, bloqueado para membros (admin pode liberar com audit).
-- Suplentes: participam da contagem de prontidão conforme política; podem ser promovidos a titular pelo owner enquanto DRAFT/READY (não em LOCKED).
+- Suplentes (decisão D-11): default **2** por equipe (`substitutes_per_team`, configurável); **não contam** para a prontidão mínima; também estão sujeitos à regra "1 participação ativa por torneio" (07 — inclusive suplentes); promoção a titular pelo owner enquanto DRAFT/READY (nunca em LOCKED).
 - Admin (`teams.manage`) pode remover membro / desqualificar equipe — sempre com razão + audit.
 
 ## 11.5 Fluxo no Discord (`/equipe`)
@@ -1021,8 +1096,9 @@ Recusa/cancelamento/expiração: transições de status com guarda `WHERE status
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 13/21 | ARQUIVO ORIGEM: docs/12-fluxos-sorteio-chaveamento.md -->
+<!-- DOCUMENTO 13/22 | ARQUIVO ORIGEM: docs/12-fluxos-sorteio-chaveamento.md -->
 <!-- ================================================================ -->
+
 # 12 — Fluxos: sorteio e chaveamento
 
 ## 12.1 Motor de chaveamento (packages/core — funções puras, testadas)
@@ -1056,7 +1132,8 @@ Suportado na v1: **eliminação simples**. O gabarito (`structure jsonb`) é for
 Ao finalizar partida `M` (13, §13.3): transação marca `M` COMPLETED e:
 - resolve `M.next_match`: `UPDATE matches SET team_a_id=? WHERE id=? AND team_a_id IS NULL` (slot conforme `next_slot`) — idempotente;
 - se o confronto seguinte tiver ambos os lados preenchidos por BYEs encadeados, continua avançando BYEs pendentes;
-- grava `public_events`/`outbox` `bracket.updated` (throttle: 1 por transação).
+- grava `public_events`/`outbox` `bracket.updated` (throttle: 1 por transação);
+- **se `M` é a partida da última rodada**: torneio transita para `FINISHED` com campeão = vencedora de `M`, na mesma transação (`tournament.status_changed` + audit + outbox) — o sistema só conclui o torneio quando o admin encerra a partida final; nada é encerrado automaticamente antes disso.
 
 ## 12.4 Chaveamento visual (site)
 
@@ -1067,20 +1144,30 @@ Ao finalizar partida `M` (13, §13.3): transação marca `M` COMPLETED e:
 
 ## 12.5 Histórico de sorteios
 
-`GET /admin/tournaments/:id/draws` — lista com autor, data, seed (visível só p/ `audit.view`), nº de equipes, config. Cada sorteio tem link para o bracket que gerou. Auditoria `DRAW_CONFIRMED` contém antes/depois (bracket arquivado, se houve).
+`GET /admin/tournaments/:id/draws` — lista com autor, data, seed (visível só p/ `audit.view`), nº de equipes, config. Cada sorteio tem link para o bracket que gerou. Auditoria `draw.confirmed` contém antes/depois (bracket arquivado, se houve).
+
+## 12.6 Edição manual do chaveamento (admin)
+
+Corrige erro de seed/montagem **antes de qualquer partida começar** — não substitui a correção de resultado (13, §13.5). Mesmo padrão de prévia → confirmação → auditoria:
+
+1. `POST /admin/brackets/:id/edits/preview` — mutações declarativas (ex.: `[{"op":"swap","matchA":id,"matchB":id}]`); backend valida contra o gabarito (`next_match_id`/`next_slot` consistentes) e retorna prévia + `confirmToken` (HMAC, 5 min, uso único); **não persiste**.
+2. `POST /admin/brackets/:id/edits/confirm` — aplica em transação: `matches` ajustadas, `brackets.version++`, `match_events(TEAM_SWAPPED)` nas partidas afetadas, audit (before/after do `structure`), outbox `bracket.updated`.
+
+Guards: qualquer partida `IN_PROGRESS`/`COMPLETED` → 409 `CONFLICT_BRACKET_EDIT` (use 13.5 nesses casos); mutação fora do gabarito → 400 `VALIDATION_ERROR`; token inválido/expirado → 409 `CONFLICT_CONFIRM_TOKEN`.
 
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 14/21 | ARQUIVO ORIGEM: docs/13-fluxos-partidas.md -->
+<!-- DOCUMENTO 14/22 | ARQUIVO ORIGEM: docs/13-fluxos-partidas.md -->
 <!-- ================================================================ -->
+
 # 13 — Fluxos: partidas
 
 Domínio: **eliminação por sobrevivência** — sem placar. Campos: equipes, rodada/slot, estado, início, fim, duração (calculada), vencedora, responsável, histórico.
 
 ## 13.1 Iniciar
 
-**Site**: painel admin → lista de confrontos pendentes → botão Iniciar. **Discord**: `/admin start` → autocomplete de `matches.select` (busca por "R2 — EquipeA vs EquipeB", ≤25 resultados por tecla) ou string select paginado; confirmação por botão (2 cliques, zero digitação de nomes).
+**Site**: painel admin → lista de confrontos pendentes → botão Iniciar. **Discord**: `/admin start` → autocomplete alimentado por `GET /internal/bot/select/matches` (busca por "R2 — EquipeA vs EquipeB", ≤25 resultados por tecla) ou string select paginado; confirmação por botão (2 cliques, zero digitação de nomes).
 
 `POST /admin/matches/:id/start` — transação:
 ```sql
@@ -1089,7 +1176,7 @@ UPDATE matches
  WHERE id=:id AND status='PENDING'
    AND team_a_id IS NOT NULL AND team_b_id IS NOT NULL;
 ```
-`rowCount == 1` → grava `match_events(STARTED)` + `audit_logs` + `outbox(match_started)`; COMMIT; 200.
+`rowCount == 1` → grava `match_events(STARTED)` + `audit_logs` + `outbox` (`match.started`); COMMIT; 200.
 `rowCount == 0` → ROLLBACK → **409 `CONFLICT_MATCH_STATUS`** (já iniciada/concluída/cancelada — mensagem diz qual). Concorrência duplo-clique: a segunda chamada perde a corrida e recebe 409 — correto por design. Guardas adicionais: torneio `RUNNING`, admin com `matches.manage` (checado antes da tx).
 
 **Timestamp confiável**: relógio do servidor de aplicação (UTC, NTP). Se vários servidores: relógio do Postgres `now()` dentro da tx — fonte única e consistente [decisão: usar `now()` do banco].
@@ -1107,9 +1194,11 @@ UPDATE matches
 1. valida `winnerTeamId ∈ {team_a_id, team_b_id}` (senão 400/409);
 2. `UPDATE matches SET status='COMPLETED', ended_at=now(), winner_team_id=..., duration_seconds=EXTRACT(EPOCH FROM (now()-started_at)), recorded_by_user_id=:actor WHERE id=? AND status='IN_PROGRESS'` → rowCount 1 obrigatório;
 3. avança chaveamento (12.3) dentro da mesma tx;
-4. `match_events(FINISHED, before/after)`, `audit_logs`, `outbox(match_finished)`; COMMIT.
+4. `match_events(FINISHED, before/after)`, `audit_logs`, `outbox` (`match.finished`); COMMIT.
 
 Iniciar sem finalizar é permitido (estado persiste); finalizar sem iniciar → 409. Cancelamento (`/cancel`, razão obrigatória): partida volta ao fluxo admin — não avança chaveamento.
+
+**Partida final**: quando a partida finalizada é a da última rodada do bracket, a mesma transação encerra o torneio (`FINISHED`, campeão = vencedora), com audit + outbox `tournament.status_changed` (12, §12.3). **Sem placar em nenhuma etapa** e **sem exigência de evidências** — o registro é ato administrativo auditado (requisito do dono).
 
 ## 13.4 W.O. e desistência
 
@@ -1143,8 +1232,9 @@ Todos os testes de concorrência em 16, §16.4.
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 15/21 | ARQUIVO ORIGEM: docs/14-sincronizacao-site-bot.md -->
+<!-- DOCUMENTO 15/22 | ARQUIVO ORIGEM: docs/14-sincronizacao-site-bot.md -->
 <!-- ================================================================ -->
+
 # 14 — Sincronização site–bot (fonte única)
 
 ## 14.1 Princípio
@@ -1174,7 +1264,7 @@ Já especificado em 05 (D4) e 07: transação de domínio insere `outbox_events`
 
 ## 14.5 Consistência em tempo real
 
-- Chaveamento/feed: SSE por tópico `tournament:{id}` ( eventos `bracket.updated`, `match.started/finished`, `feed.new`), heartbeat 25 s, reconexão com `Last-Event-ID`.
+- Chaveamento/feed: SSE em `/api/v1/stream/tournaments/:id` (eventos do catálogo 08 §8.10: `match.started`, `match.finished`, `draw.confirmed`, `bracket.updated`, `tournament.announcement_published`), heartbeat 25 s, reconexão com `Last-Event-ID`.
 - Fallback: se `EventSource` falhar 2× (proxy/CDN bloqueando), cliente alterna polling SWR 10 s automaticamente.
 - O bot consulta a API por demanda (interação) — não mantém cache de resultados; painéis V2 publicados no Discord são atualizados pelo worker (edit da mensagem) quando o evento correspondente é entregue.
 
@@ -1190,8 +1280,9 @@ Já especificado em 05 (D4) e 07: transação de domínio insere `outbox_events`
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 16/21 | ARQUIVO ORIGEM: docs/15-telas-ux.md -->
+<!-- DOCUMENTO 16/22 | ARQUIVO ORIGEM: docs/15-telas-ux.md -->
 <!-- ================================================================ -->
+
 # 15 — Telas e wireframes (descritivos)
 
 Estética-alvo: escura, "tática/sobrevivência" condizente com Aftermath — fundo `#0B0F14`, superfícies `#131A22`, destaque âmbar `#F59E0B` e verde `#34D399`; tipografia display forte (ex.: Archivo/Space Grotesk) + corpo Inter; cards com borda 1px e sombra sutil; micro-animações discretas. Assets de armas do jogo (pasta `Downloads/aftermath`, `.webp`) podem decorar seções de regras.
@@ -1242,11 +1333,47 @@ Estética-alvo: escura, "tática/sobrevivência" condizente com Aftermath — fu
 - `/equipe criar|ver|convidar|sair` · `/roblox vincular|status` · `/partida ver` (público) · `/admin start|finalizar|sorteio|equipe|configurar` (configurar abre link p/ T11).
 - Todos os comandos admin usam autocomplete + selects paginados; confirmações por botão; respostas ephemeral por padrão; logs públicos via outbox (não via comandos).
 
+## 15.5 Prioridades do painel admin e mapeamento tela → endpoint
+
+Prioridade de construção/refino (o que o dono mais usa):
+
+1. **T13 Central de partidas** — fila "aguardando início"/"em andamento" com cronômetro; iniciar/finalizar/cancelar/W.O. sem sair da tela.
+2. **T3 Chaveamento visual** — cartões, estados coloridos, SSE ao vivo, duração.
+3. **T14 Sorteio guiado** — prévia → confirmar → histórico.
+4. **T11 Configuração** — form + modal de impactos com `confirmToken`.
+5. **T12/T4 Equipes** — pesquisa instantânea, filtros (estado, prontidão, Roblox).
+6. **T15/T16/T17** — permissões, auditoria, anúncios.
+
+Mapeamento tela → endpoints (contratos completos em 08):
+
+| Tela | Endpoints | Permissão |
+|---|---|---|
+| T1 Home | `GET /tournaments` · `GET /tournaments/:id` · `GET /tournaments/:id/events` | PUBLIC |
+| T2 Regras | `GET /tournaments/:id` | PUBLIC |
+| T3 Chaveamento | `GET /tournaments/:id/bracket` · SSE `GET /api/v1/stream/tournaments/:id` | PUBLIC |
+| T4 Equipes | `GET /tournaments/:id/teams` | PUBLIC |
+| T5 Feed | `GET /tournaments/:id/events` | PUBLIC |
+| T6 Dashboard | `GET /me` | SESSION |
+| T7 Minha equipe | `POST /teams` · `GET /teams/:id` · `PATCH /teams/:id` · `POST /teams/:id/invites` · `POST /teams/:id/leave` | SESSION |
+| T8 Convites | `GET /me/invites` · `POST /invites/:id/accept` · `POST /invites/:id/decline` · `DELETE /invites/:id` | SESSION |
+| T9 Roblox | `GET /roblox/link/start` (302) · `GET /roblox/status` · `POST /roblox/access-check` · `DELETE /roblox/link` | SESSION |
+| T10 Torneios | `GET /tournaments` · `POST /admin/tournaments` | ADMIN `tournaments.config` |
+| T11 Config | `PATCH /admin/tournaments/:id/config` (prévia → confirm) · `POST /admin/tournaments/:id/status` | ADMIN `tournaments.config` |
+| T12 Equipes admin | `GET /admin/tournaments/:id/teams` · `PATCH /teams/:id` · desqualificar | ADMIN `teams.manage` |
+| T13 Partidas | `GET /admin/tournaments/:id/matches?status=` · `POST /admin/matches/:id/start\|finish\|correct\|cancel\|walkover` | ADMIN `matches.manage` |
+| T14 Sorteio | `POST /admin/tournaments/:id/draw/preview\|confirm\|redraw` · `GET /admin/tournaments/:id/draws` | ADMIN `draws.run` |
+| T15 Admins | `GET /admin/admins` · `POST /admin/admins` · `DELETE /admin/admins/:discordId` | OWNER |
+| T16 Auditoria | `GET /admin/audit` | ADMIN `audit.view` |
+| T17 Anúncios | `POST /admin/tournaments/:id/announcements` | ADMIN `announcements.publish` |
+
+Esta tabela é a referência da UI track do AI Studio (21, §21.2): **nenhuma tela inventa endpoint fora dela**.
+
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 17/21 | ARQUIVO ORIGEM: docs/16-plano-testes.md -->
+<!-- DOCUMENTO 17/22 | ARQUIVO ORIGEM: docs/16-plano-testes.md -->
 <!-- ================================================================ -->
+
 # 16 — Plano de testes
 
 Stack: **vitest** (unit/integração — padrão do repo atual), **Playwright** (E2E web), **testcontainers** ou `docker compose` com banco/redis efêmeros para integração. Meta de cobertura do `packages/core`: ≥ 90% (lógica crítica).
@@ -1301,14 +1428,15 @@ Cada fase do roadmap (20) lista seus testes; nada avança de fase com suíte ver
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 18/21 | ARQUIVO ORIGEM: docs/17-seguranca.md -->
+<!-- DOCUMENTO 18/22 | ARQUIVO ORIGEM: docs/17-seguranca.md -->
 <!-- ================================================================ -->
+
 # 17 — Segurança
 
 ## 17.1 Autenticação e sessão
 
 - OAuth2 Discord/Roblox com `state` anti-CSRF validado server-side; `code` de uso único; trocas server-to-server [CONFIRMADO nas docs].
-- Cookie de sessão: `HttpOnly`, `Secure`, `SameSite=Lax`; JWT assinado (Auth.js) com claims mínimos (`userId`, `discordId`); permissões sempre do banco.
+- Cookie de sessão: nome padrão Auth.js (`authjs.session-token`), `HttpOnly`, `Secure`, `SameSite=Lax`, maxAge 7 dias; JWT assinado (Auth.js v5) com claims mínimos (`userId`, `discordId`), rotacionado a cada login; permissões sempre do banco. Logout por `POST /api/auth/signout` (Auth.js) — limpa o cookie; não há lista de sessões server-side (JWT stateless). **Não existe `/me/logout`** (removido da API canônica — 08, §8.1).
 - IDs vindos do cliente **nunca** autorizam: todo endpoint resolve ator no banco e checa permissão (inclusive via bot).
 
 ## 17.2 Autorização
@@ -1319,8 +1447,20 @@ Cada fase do roadmap (20) lista seus testes; nada avança de fase com suíte ver
 ## 17.3 Validação e abuso
 
 - Zod em 100% dos inputs (query, path, body, headers de ator); snowflakes validados (17–20 dígitos), UUIDs, datas futuras/passadas coerentes.
-- **Rate limiting** (Redis, sliding window): autenticação 10/min/IP; `/roblox/access-check` 5/min/user; mutações de jogador 30/min/user; admin 120/min/user; default 60/IP. 429 + `Retry-After`; abuso repetido → bloqueio temporário + audit.
-- **CSRF**: SameSite=Lax + verificação de `Origin` em mutações cookie-auth; token de confirmação assinado para ações com impacto (config, correção).
+- **Rate limiting** (Redis, sliding window) — tabela canônica (referência para 08/18):
+
+| Escopo | Limite |
+|---|---|
+| Login/logout (rotas `/api/auth/*`) | 10/min por IP |
+| SSE (novas conexões) | 10/min por usuário, máx. 3 simultâneas |
+| Mutações de jogador (equipes/convites) | 30/min por usuário |
+| Mutações admin | 120/min por usuário |
+| `/roblox/access-check` | 5/min por usuário (+ orçamento global Roblox de 30 req/min no worker) |
+| Rotas `INTERNAL` (bot/worker) | 600/min por service token |
+| Leitura pública (default) | 60/min por IP |
+
+Respostas 429 com `Retry-After`; abuso repetido → bloqueio temporário + audit.
+- **CSRF**: `SameSite=Lax` + validação de `Origin`/`Host` em **toda** mutação com cookie (middleware `proxy.ts` do Next 16); mutações sempre em POST/PATCH/DELETE (GET nunca causa efeito); ações de alto impacto (config, correção de resultado, edição de bracket, redraw, desqualificação) exigem **token de confirmação** assinado — HMAC, 5 min, uso único, emitido na prévia (`confirmToken`), rejeitado com 409 `CONFLICT_CONFIRM_TOKEN` se inválido/expirado.
 - **XSS**: sem `dangerouslySetInnerHTML`; regras markdown renderizadas por sanitizer; conteúdo do Discord (nomes) sempre texto escapado.
 - **SSRF**: outbound fixo para hosts conhecidos (Discord/Roblox); nenhum fetch por URL informada pelo usuário.
 - Uploads: nenhum na v1 (avatars vêm das APIs oficiais).
@@ -1350,8 +1490,9 @@ Cada fase do roadmap (20) lista seus testes; nada avança de fase com suíte ver
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 19/21 | ARQUIVO ORIGEM: docs/18-deploy-operacao.md -->
+<!-- DOCUMENTO 19/22 | ARQUIVO ORIGEM: docs/18-deploy-operacao.md -->
 <!-- ================================================================ -->
+
 # 18 — Deploy, variáveis de ambiente, backups e operação
 
 ## 18.1 Topologia alvo (v1)
@@ -1430,15 +1571,16 @@ Validação: env schema (Zod) no boot de cada app — faltou chave, não sobe. `
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 20/21 | ARQUIVO ORIGEM: docs/19-riscos-decisoes.md -->
+<!-- DOCUMENTO 20/22 | ARQUIVO ORIGEM: docs/19-riscos-decisoes.md -->
 <!-- ================================================================ -->
+
 # 19 — Riscos, decisões pendentes e alternativas
 
 ## 19.1 Riscos
 
 | # | Risco | Prob. | Impacto | Mitigação |
 |---|---|---|---|---|
-| R-1 | OAuth2 Roblox **beta**; app em modo privado **máx. 10 usuários** até aprovação de produção [CONFIRMADO] | Média | Alto — trava vinculação em massa | Registrar app na P1 e pedir aprovação imediatamente; contingência: torneio fechado ≤10 até aprovação; monitorar docs |
+| R-1 | OAuth2 Roblox: app novo fica em **modo privado (máx. 10 usuários)** até aprovação de produção; publicar exige **Submit for Review** — vídeo de demonstração + justificativa, escopos mínimos, conta registradora com **ID verificado**, app não editável durante a revisão e irreversível para privado [CONFIRMADO 28/10/2026] | Média | Alto — trava vinculação em massa | Registrar app na P1 e submeter revisão imediatamente; preparar vídeo/justificativa com antecedência; contingência: torneio fechado ≤10 contas até aprovação; monitorar docs |
 | R-2 | `is-owned` depende de privacidade do jogador; respostas 403 ambíguas [TESTAR] | Alta | Médio — falsos "sem acesso" | Máquina de estados com INCONCLUSIVE + `can-view-inventory` + mensagens orientando o jogador; probe na P2 |
 | R-3 | Bloqueio anti-bot Roblox a IPs de datacenter [INCERTO — 403 observado nesta sessão] | Média | Alto se produção em datacenter | Probe residencial; se confirmado, saída por IP residencial/proxy confiável ou alternativa com API key do dono (cloud v2 inventory-items) |
 | R-4 | Intents privilegiadas do Discord exigem revisão se app crescer (>10k usuários) [CONFIRMADO] | Baixa | Baixo/Médio | Solicitar só `GUILD_MEMBERS`; sem `MESSAGE_CONTENT` |
@@ -1461,22 +1603,24 @@ Validação: env schema (Zod) no boot de cada app — faltou chave, não sobe. `
 | Verificação Roblox | `is-owned` público | cloud v2 inventory-items (API key do dono) | Endpoint indicado pelo dono; alternativa robusta pronta se R-2/R-3 confirmarem |
 | Vínculo Roblox | OAuth2 Open Cloud | none (só username digitado) | Username digitado não é prova; OAuth dá ID estável + avatar oficial |
 
-## 19.3 DECISÕES QUE EXIGEM APROVAÇÃO
+## 19.3 DECISÕES — status após a revisão técnica v2 (28/10/2026)
 
-| # | Decisão | Recomendação | Alternativa |
+| # | Decisão | Escolha | Status |
 |---|---|---|---|
-| D-01 | Hosting da v1 | VPS + Docker Compose (um provedor, ex.: Hetzner/Contabo/Scaleway) | Cloud Run p/ web + VPS p/ bot |
-| D-02 | API dentro do Next vs API separada | Dentro do Next | Fastify separado |
-| D-03 | Sessão JWT (Auth.js) vs sessão em banco | JWT + permissões do banco | Database sessions |
-| D-04 | Fila BullMQ+Redis vs pg-boss | BullMQ+Redis | pg-boss |
-| D-05 | Não armazenar tokens OAuth Roblox | Confirmar (re-vincula quando necessário) | Armazenar refresh token criptografado |
-| D-06 | Verificação primária `is-owned` + fallback `can-view` + alternativa cloud v2 | Confirmar ordem | Somente cloud v2 c/ API key |
-| D-07 | Uso do Google AI Studio Build | Apenas protótipo de telas; produção no repo | Nenhum uso |
-| D-08 | Formato v1: eliminação simples | Confirmar | incluir round-robin de grupos na v1 |
-| D-09 | Cadeia de hash no AuditLog (tamper-evidence) | Fase P5 (opcional) | sem cadeia |
-| D-10 | Domínio/e-mail p/ OAuth apps e redirects | Definir antes da P1 | — |
-| D-11 | Política de suplentes default (quantos, contam p/ prontidão?) | 2 suplentes, não contam p/ prontidão mínima | configurável por torneio (já é) |
-| D-12 | Aprovar plano de fases (20) e começar P0 | Sim | reordenar prioridades |
+| D-01 | Hosting da v1 | VPS + Docker Compose (um provedor, ex.: Hetzner/Contabo/Scaleway) | ⏳ **PENDENTE** — escolher provedor antes da P7 (não bloqueia P0–P6) |
+| D-02 | API dentro do Next vs API separada | Dentro do Next (`/api/v1`) | ✅ **RESOLVIDA** |
+| D-03 | Sessão JWT (Auth.js) vs sessão em banco | JWT + permissões sempre do banco | ✅ **RESOLVIDA** |
+| D-04 | Fila BullMQ+Redis vs pg-boss | BullMQ + Redis 7 (AOF) | ✅ **RESOLVIDA** |
+| D-05 | Armazenar tokens OAuth Roblox? | Não — só identidade; re-verificação por endpoints públicos | ✅ **RESOLVIDA** |
+| D-06 | Ordem da verificação de acesso | `is-owned` → `can-view-inventory` → fallback cloud v2 (API key do dono) | ✅ **RESOLVIDA** |
+| D-07 | Uso do Google AI Studio Build | Apenas protótipo de telas (UI track — doc 21); produção no repo | ✅ **RESOLVIDA** |
+| D-08 | Formato v1 | Eliminação simples (modelo pronto p/ double) | ✅ **RESOLVIDA** |
+| D-09 | Cadeia de hash no AuditLog | Adotar na P5 (tamper-evidence opcional) | ✅ **RESOLVIDA** |
+| D-10 | Domínio/e-mail p/ apps OAuth e redirects | Definir antes da P1 | ⏳ **PENDENTE** — bloqueia redirects reais dos apps OAuth |
+| D-11 | Política de suplentes | 2 suplentes por equipe (configurável); **não contam** p/ prontidão mínima; sujeitos à regra "1 participação ativa por torneio" | ✅ **RESOLVIDA** |
+| D-12 | Aprovar roadmap (20) e iniciar P0 | Sim | ⏳ **PENDENTE** — aguarda aprovação do dono |
+
+Decisões resolvidas não são reabertas sem necessidade; reversão exige justificativa e nova linha de auditoria. As decisões pendentes (D-01, D-10, D-12) **não bloqueiam o início da implementação** — detalhes em 20.
 
 ## 19.4 Incertezas que não bloqueiam o começo
 
@@ -1487,8 +1631,9 @@ Validação: env schema (Zod) no boot de cada app — faltou chave, não sobe. `
 ---
 
 <!-- ================================================================ -->
-<!-- DOCUMENTO 21/21 | ARQUIVO ORIGEM: docs/20-roadmap.md -->
+<!-- DOCUMENTO 21/22 | ARQUIVO ORIGEM: docs/20-roadmap.md -->
 <!-- ================================================================ -->
+
 # 20 — Roadmap (fases pequenas, ordenadas, verificáveis)
 
 Regra: cada fase tem **critérios de aceite testáveis** e nada de fase posterior começa sem os anteriores verdes. Estimativas em dias de trabalho concentrado (não calendário).
@@ -1537,7 +1682,80 @@ Double elimination · round-robin de grupos · estatísticas de equipes · pági
 ## Dependências externas (paralelas ao código)
 1. Registro + aprovação do app OAuth2 Roblox (P1) — caminho crítico do R-1.
 2. Criação do app/bot Discord + intents (`GUILD_MEMBERS`).
-3. Definição de domínio + canal de logs no Discord.
+3. Definição de domínio + canal de logs no Discord (D-10).
+
+## UI track paralela (Google AI Studio)
+
+As telas (15) podem ser prototipadas **em paralelo** com P3–P5 no Google AI Studio Build, seguindo `docs/21-ai-studio-integration.md` (pacote de contexto, regras de port, fluxo de PR). A UI track não altera as fases de backend: cada tela integrada entra no PR da sua fase, e a troca de mock pela API real acontece apenas na camada `api-client.ts`, já tipada pelos schemas Zod (08, §8.0). Nada do backend (API/auth/DB/worker/bot) é gerado pelo AI Studio (D-07).
+
+---
+
+<!-- ================================================================ -->
+<!-- DOCUMENTO 22/22 | ARQUIVO ORIGEM: docs/21-ai-studio-integration.md -->
+<!-- ================================================================ -->
+
+# 21 — Integração com Google AI Studio (UI track)
+
+Objetivo: usar o **Google AI Studio Build** (Gemini) para prototipar e refinar a **interface** (site + painel admin) **sem criar uma arquitetura paralela**. O backend (API, auth, banco, worker, bot) **nunca** é gerado pelo AI Studio — decisão **D-07** (RESOLVIDA em 19).
+
+## 21.1 O que o AI Studio pode e não pode
+
+| Pode | Não pode |
+|---|---|
+| Prototipar telas consumindo os contratos reais (08) | Gerar endpoints/auth/banco ("arquitetura paralela") |
+| Gerar componentes React/Next em `apps/web/src/**` | Alterar `packages/core`, `packages/db`, `apps/bot`, `apps/worker` |
+| Propor design system (cores/tipografia/motion) | Introduzir biblioteca de estado/fetch fora do padrão |
+| Consumir mock data layer com as mesmas formas dos contratos | Fazer deploy para produção (deploy é CI — doc 18) |
+| Sincronizar via GitHub (sync nativo do Build mode) | Push direto em `master` (sempre branch + PR) |
+
+## 21.2 Pacote de contexto fornecido ao AI Studio
+
+Anexar ao projeto do AI Studio, nesta ordem:
+
+1. `docs/08-api-contratos.md` — contratos + convenções (§8.0) + catálogo de eventos (§8.10);
+2. `docs/15-telas-ux.md` — wireframes + mapeamento tela→endpoint (§15.5);
+3. `docs/21-ai-studio-integration.md` — este documento (regras de port);
+4. `docs/02-requisitos.md` — RF/RNF que legitimam comportamentos;
+5. `packages/schemas/*` — schemas Zod compartilhados (fonte única de tipos);
+6. Design tokens (quando existirem): `apps/web/src/styles/tokens.css` + paleta do doc 15 (`#0B0F14`, `#131A22`, âmbar `#F59E0B`, verde `#34D399`);
+7. Mock data layer: `apps/web/src/mocks/*` — fixtures com as **mesmas formas** dos contratos (camelCase, IDs string, ISO-8601, eventos do catálogo).
+
+## 21.3 Regras de port (o que o AI Studio gera entra como)
+
+- Branch `design/ai-studio/<tela>`; integração **sempre via PR** revisado por humano — nunca push em `master`.
+- Só toca em: `apps/web/src/app/**` (páginas), `apps/web/src/components/**`, `apps/web/src/styles/**`, `apps/web/src/mocks/**`.
+- Fetch: camada única `apps/web/src/lib/api-client.ts`, tipada pelos schemas Zod. O AI Studio escreve chamadas contra esta camada; **não cria clients próprios**.
+- Auth no protótipo: mock data layer com perfis fake (jogador, admin, dono) — **nunca tocar no Auth.js** nem em cookies de sessão reais.
+- SSE no protótipo: simulado com timers emitindo os eventos do catálogo §8.10; o contrato do cliente é o mesmo (`onEvent(type, payload)`).
+- Proibido instalar dependências novas sem aprovação (base aprovada: React/Next/Tailwind/zod; motion via CSS).
+- Toda página nova nasce com estados **loading / empty / error** + skeleton; acessibilidade mínima (labels, foco visível, contraste — RNF-06).
+- **Nenhum endpoint fora do mapeamento §15.5 / contratos §8.x**; se uma tela precisa de dado inexistente, abre issue para estender o contrato primeiro.
+
+## 21.4 Fluxo de integração
+
+1. Gerar tela no AI Studio com o pacote de contexto (21.2) anexado.
+2. Exportar via sync nativo do Build mode para o GitHub → branch `design/ai-studio/tXX-<nome>`.
+3. PR no repositório; revisão humana confere: conformidade com contratos (08), regras de port (21.3), acessibilidade (15/RNF-06).
+4. Substituir mock pela API real — só a implementação da `api-client.ts` muda; as chamadas/tipos permanecem.
+5. Testes E2E (16, §16.3) cobrem a tela integrada antes de marcar a fase como concluída.
+
+## 21.5 Prioridades visuais do painel (eco de 15.5)
+
+1. **Chaveamento visual (T3)** — cartões por rodada, estados coloridos, SSE ao vivo.
+2. **Central de partidas (T13)** — fila com cronômetro, ações com modais de confirmação.
+3. **Sorteio guiado (T14)** — prévia → confirmação → resultado.
+4. **Configuração com impactos (T11)** — diff antes de aplicar (`confirmToken`).
+5. **Equipes com pesquisa instantânea e filtros (T4/T12)**.
+6. **Permissões (T15) e auditoria (T16)** — tabelas densas com filtros e before/after expansível.
+
+## 21.6 Antipadrões a rejeitar no review de PR
+
+- Chamadas `fetch` espalhadas nos componentes (fora da `api-client.ts`);
+- Tipos locais duplicando schemas Zod;
+- Estados de autenticação inventados no cliente (permissões vêm sempre da API);
+- Eventos/nomes fora do catálogo §8.10;
+- Estilos inline mágicos fora dos tokens do design system;
+- Lógica de domínio (chaveamento, elegibilidade, permissões) reimplementada na UI — a UI só exibe o que a API responde.
 
 ---
 

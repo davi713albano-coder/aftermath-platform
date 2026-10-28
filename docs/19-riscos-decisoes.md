@@ -4,7 +4,7 @@
 
 | # | Risco | Prob. | Impacto | Mitigação |
 |---|---|---|---|---|
-| R-1 | OAuth2 Roblox **beta**; app em modo privado **máx. 10 usuários** até aprovação de produção [CONFIRMADO] | Média | Alto — trava vinculação em massa | Registrar app na P1 e pedir aprovação imediatamente; contingência: torneio fechado ≤10 até aprovação; monitorar docs |
+| R-1 | OAuth2 Roblox: app novo fica em **modo privado (máx. 10 usuários)** até aprovação de produção; publicar exige **Submit for Review** — vídeo de demonstração + justificativa, escopos mínimos, conta registradora com **ID verificado**, app não editável durante a revisão e irreversível para privado [CONFIRMADO 28/10/2026] | Média | Alto — trava vinculação em massa | Registrar app na P1 e submeter revisão imediatamente; preparar vídeo/justificativa com antecedência; contingência: torneio fechado ≤10 contas até aprovação; monitorar docs |
 | R-2 | `is-owned` depende de privacidade do jogador; respostas 403 ambíguas [TESTAR] | Alta | Médio — falsos "sem acesso" | Máquina de estados com INCONCLUSIVE + `can-view-inventory` + mensagens orientando o jogador; probe na P2 |
 | R-3 | Bloqueio anti-bot Roblox a IPs de datacenter [INCERTO — 403 observado nesta sessão] | Média | Alto se produção em datacenter | Probe residencial; se confirmado, saída por IP residencial/proxy confiável ou alternativa com API key do dono (cloud v2 inventory-items) |
 | R-4 | Intents privilegiadas do Discord exigem revisão se app crescer (>10k usuários) [CONFIRMADO] | Baixa | Baixo/Médio | Solicitar só `GUILD_MEMBERS`; sem `MESSAGE_CONTENT` |
@@ -27,22 +27,24 @@
 | Verificação Roblox | `is-owned` público | cloud v2 inventory-items (API key do dono) | Endpoint indicado pelo dono; alternativa robusta pronta se R-2/R-3 confirmarem |
 | Vínculo Roblox | OAuth2 Open Cloud | none (só username digitado) | Username digitado não é prova; OAuth dá ID estável + avatar oficial |
 
-## 19.3 DECISÕES QUE EXIGEM APROVAÇÃO
+## 19.3 DECISÕES — status após a revisão técnica v2 (28/10/2026)
 
-| # | Decisão | Recomendação | Alternativa |
+| # | Decisão | Escolha | Status |
 |---|---|---|---|
-| D-01 | Hosting da v1 | VPS + Docker Compose (um provedor, ex.: Hetzner/Contabo/Scaleway) | Cloud Run p/ web + VPS p/ bot |
-| D-02 | API dentro do Next vs API separada | Dentro do Next | Fastify separado |
-| D-03 | Sessão JWT (Auth.js) vs sessão em banco | JWT + permissões do banco | Database sessions |
-| D-04 | Fila BullMQ+Redis vs pg-boss | BullMQ+Redis | pg-boss |
-| D-05 | Não armazenar tokens OAuth Roblox | Confirmar (re-vincula quando necessário) | Armazenar refresh token criptografado |
-| D-06 | Verificação primária `is-owned` + fallback `can-view` + alternativa cloud v2 | Confirmar ordem | Somente cloud v2 c/ API key |
-| D-07 | Uso do Google AI Studio Build | Apenas protótipo de telas; produção no repo | Nenhum uso |
-| D-08 | Formato v1: eliminação simples | Confirmar | incluir round-robin de grupos na v1 |
-| D-09 | Cadeia de hash no AuditLog (tamper-evidence) | Fase P5 (opcional) | sem cadeia |
-| D-10 | Domínio/e-mail p/ OAuth apps e redirects | Definir antes da P1 | — |
-| D-11 | Política de suplentes default (quantos, contam p/ prontidão?) | 2 suplentes, não contam p/ prontidão mínima | configurável por torneio (já é) |
-| D-12 | Aprovar plano de fases (20) e começar P0 | Sim | reordenar prioridades |
+| D-01 | Hosting da v1 | VPS + Docker Compose (um provedor, ex.: Hetzner/Contabo/Scaleway) | ⏳ **PENDENTE** — escolher provedor antes da P7 (não bloqueia P0–P6) |
+| D-02 | API dentro do Next vs API separada | Dentro do Next (`/api/v1`) | ✅ **RESOLVIDA** |
+| D-03 | Sessão JWT (Auth.js) vs sessão em banco | JWT + permissões sempre do banco | ✅ **RESOLVIDA** |
+| D-04 | Fila BullMQ+Redis vs pg-boss | BullMQ + Redis 7 (AOF) | ✅ **RESOLVIDA** |
+| D-05 | Armazenar tokens OAuth Roblox? | Não — só identidade; re-verificação por endpoints públicos | ✅ **RESOLVIDA** |
+| D-06 | Ordem da verificação de acesso | `is-owned` → `can-view-inventory` → fallback cloud v2 (API key do dono) | ✅ **RESOLVIDA** |
+| D-07 | Uso do Google AI Studio Build | Apenas protótipo de telas (UI track — doc 21); produção no repo | ✅ **RESOLVIDA** |
+| D-08 | Formato v1 | Eliminação simples (modelo pronto p/ double) | ✅ **RESOLVIDA** |
+| D-09 | Cadeia de hash no AuditLog | Adotar na P5 (tamper-evidence opcional) | ✅ **RESOLVIDA** |
+| D-10 | Domínio/e-mail p/ apps OAuth e redirects | Definir antes da P1 | ⏳ **PENDENTE** — bloqueia redirects reais dos apps OAuth |
+| D-11 | Política de suplentes | 2 suplentes por equipe (configurável); **não contam** p/ prontidão mínima; sujeitos à regra "1 participação ativa por torneio" | ✅ **RESOLVIDA** |
+| D-12 | Aprovar roadmap (20) e iniciar P0 | Sim | ⏳ **PENDENTE** — aguarda aprovação do dono |
+
+Decisões resolvidas não são reabertas sem necessidade; reversão exige justificativa e nova linha de auditoria. As decisões pendentes (D-01, D-10, D-12) **não bloqueiam o início da implementação** — detalhes em 20.
 
 ## 19.4 Incertezas que não bloqueiam o começo
 

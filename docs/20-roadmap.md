@@ -46,4 +46,8 @@ Double elimination · round-robin de grupos · estatísticas de equipes · pági
 ## Dependências externas (paralelas ao código)
 1. Registro + aprovação do app OAuth2 Roblox (P1) — caminho crítico do R-1.
 2. Criação do app/bot Discord + intents (`GUILD_MEMBERS`).
-3. Definição de domínio + canal de logs no Discord.
+3. Definição de domínio + canal de logs no Discord (D-10).
+
+## UI track paralela (Google AI Studio)
+
+As telas (15) podem ser prototipadas **em paralelo** com P3–P5 no Google AI Studio Build, seguindo `docs/21-ai-studio-integration.md` (pacote de contexto, regras de port, fluxo de PR). A UI track não altera as fases de backend: cada tela integrada entra no PR da sua fase, e a troca de mock pela API real acontece apenas na camada `api-client.ts`, já tipada pelos schemas Zod (08, §8.0). Nada do backend (API/auth/DB/worker/bot) é gerado pelo AI Studio (D-07).

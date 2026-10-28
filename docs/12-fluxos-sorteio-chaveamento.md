@@ -31,7 +31,8 @@ Suportado na v1: **eliminação simples**. O gabarito (`structure jsonb`) é for
 Ao finalizar partida `M` (13, §13.3): transação marca `M` COMPLETED e:
 - resolve `M.next_match`: `UPDATE matches SET team_a_id=? WHERE id=? AND team_a_id IS NULL` (slot conforme `next_slot`) — idempotente;
 - se o confronto seguinte tiver ambos os lados preenchidos por BYEs encadeados, continua avançando BYEs pendentes;
-- grava `public_events`/`outbox` `bracket.updated` (throttle: 1 por transação).
+- grava `public_events`/`outbox` `bracket.updated` (throttle: 1 por transação);
+- **se `M` é a partida da última rodada**: torneio transita para `FINISHED` com campeão = vencedora de `M`, na mesma transação (`tournament.status_changed` + audit + outbox) — o sistema só conclui o torneio quando o admin encerra a partida final; nada é encerrado automaticamente antes disso.
 
 ## 12.4 Chaveamento visual (site)
 
@@ -42,4 +43,13 @@ Ao finalizar partida `M` (13, §13.3): transação marca `M` COMPLETED e:
 
 ## 12.5 Histórico de sorteios
 
-`GET /admin/tournaments/:id/draws` — lista com autor, data, seed (visível só p/ `audit.view`), nº de equipes, config. Cada sorteio tem link para o bracket que gerou. Auditoria `DRAW_CONFIRMED` contém antes/depois (bracket arquivado, se houve).
+`GET /admin/tournaments/:id/draws` — lista com autor, data, seed (visível só p/ `audit.view`), nº de equipes, config. Cada sorteio tem link para o bracket que gerou. Auditoria `draw.confirmed` contém antes/depois (bracket arquivado, se houve).
+
+## 12.6 Edição manual do chaveamento (admin)
+
+Corrige erro de seed/montagem **antes de qualquer partida começar** — não substitui a correção de resultado (13, §13.5). Mesmo padrão de prévia → confirmação → auditoria:
+
+1. `POST /admin/brackets/:id/edits/preview` — mutações declarativas (ex.: `[{"op":"swap","matchA":id,"matchB":id}]`); backend valida contra o gabarito (`next_match_id`/`next_slot` consistentes) e retorna prévia + `confirmToken` (HMAC, 5 min, uso único); **não persiste**.
+2. `POST /admin/brackets/:id/edits/confirm` — aplica em transação: `matches` ajustadas, `brackets.version++`, `match_events(TEAM_SWAPPED)` nas partidas afetadas, audit (before/after do `structure`), outbox `bracket.updated`.
+
+Guards: qualquer partida `IN_PROGRESS`/`COMPLETED` → 409 `CONFLICT_BRACKET_EDIT` (use 13.5 nesses casos); mutação fora do gabarito → 400 `VALIDATION_ERROR`; token inválido/expirado → 409 `CONFLICT_CONFIRM_TOKEN`.

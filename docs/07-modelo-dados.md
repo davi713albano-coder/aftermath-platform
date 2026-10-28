@@ -48,10 +48,18 @@ Campos fortes: `name`, `description`, `rules_md`, `status` (DRAFT/REG_OPEN/REG_C
 | locked_at | congelada no sorteio |
 
 ### team_members
-`team_id`, `user_id`, `role` (OWNER/MEMBER/SUBSTITUTE), `joined_at`, `left_at?`.
-**Invariantes**:
+`team_id`, `tournament_id` (FK **denormalizada** na linha do membro — preenchida na transação de entrada e mantida em sync com `teams.tournament_id`; nunca editável isoladamente), `user_id`, `role` (OWNER/MEMBER/SUBSTITUTE), `joined_at`, `left_at?`.
+
+**Invariantes (regra definitiva — sem alternativas)**:
 - `@@unique([team_id, user_id])` — um vínculo por equipe;
-- partial unique: um usuário só tem **uma** participação ativa (`left_at IS NULL`) por torneio → implementado como unique index em `(user_id) WHERE left_at IS NULL AND role != 'SUBSTITUTE'` + `@@unique([tournament_id?])` via coluna derivada `tournament_id` na linha do membro (denormalizada p/ indexar) — alternativamente enforced transacionalmente + constraint excluída por política. Decisão final na implementação (detalhe em 12).
+- **Um usuário só tem UMA participação ativa por torneio — incluindo suplentes.** Implementação definitiva: coluna `tournament_id` denormalizada + **partial unique index**:
+  ```sql
+  CREATE UNIQUE INDEX uq_team_members_active_per_tournament
+    ON team_members (tournament_id, user_id)
+    WHERE left_at IS NULL;
+  ```
+  Sem exceção por `role`: suplente também não pode estar ativo em duas equipes. O Prisma não modela partial unique index → criar via migration SQL manual + teste de integração dedicado (16, §16.4).
+- **Concorrência de aceitação de convite**: a transação de accept executa como primeira instrução `SELECT pg_advisory_xact_lock(hashtextextended('team:' || :tournamentId || ':' || :userId, 0))`, depois revalida elegibilidade/vagas, insere e commita. Dois accepts paralelos do mesmo usuário (mesmo contra equipes diferentes) serializam no lock; o segundo encontra a participação já ativa e falha com `CONFLICT_TEAM_MEMBER`. A partial unique index permanece como **última linha de defesa**: o lock é otimização de contenção, a constraint é a invariante.
 
 ### invites
 | Campo | Notas |
@@ -90,10 +98,10 @@ Campos fortes: `name`, `description`, `rules_md`, `status` (DRAFT/REG_OPEN/REG_C
 `proposed jsonb`, `impacts jsonb`, `status` (PENDING/APPLIED/DISCARDED), `requested_by`. Suporta o modal "revise os impactos e confirme".
 
 ### public_events — feed público (fonte de verdade do log)
-`tournament_id`, `type` (MATCH_STARTED/MATCH_FINISHED/DRAW_CONFIRMED/BRACKET_UPDATED/ANNOUNCEMENT), `payload jsonb` (dados já **públicos**), `created_at`, `visibility`. O site lê daqui; o Discord é espelho.
+`tournament_id`, `type` — valores do **catálogo canônico de eventos** (08, §8.10): `match.started`, `match.finished`, `match.corrected`, `match.cancelled`, `match.walkover`, `draw.confirmed`, `draw.superseded`, `bracket.updated`, `tournament.config_changed`, `tournament.status_changed`, `tournament.announcement_published`, `team.created`, `team.disqualified`, `team.member_joined`, `team.member_left` —, `payload jsonb` (dados já **públicos**), `created_at`, `visibility`. O site lê daqui; o Discord é espelho. Eventos privados (convites, vínculo Roblox) vão apenas para `audit_logs`/outbox dirigido — nunca ao feed público.
 
 ### outbox_events — entrega Discord
-`dedup_key @unique` (ex.: `outbox:match_finished:<matchId>`), `type`, `target` (`channel_id` | `user_id`), `payload jsonb`, `status` (PENDING/DELIVERED/FAILED/DEAD), `attempts`, `next_attempt_at`, `discord_message_id?`, `created_at`. **Insert na mesma transação do domínio.**
+`dedup_key @unique` (ex.: `outbox:match.finished:<matchId>`), `type`, `target` (`channel_id` | `user_id`), `payload jsonb`, `status` (PENDING/DELIVERED/FAILED/DEAD), `attempts`, `next_attempt_at`, `discord_message_id?`, `created_at`. **Insert na mesma transação do domínio.**
 
 ### admin_grants — permissões granulares
 `discord_user_id` (chave por identidade Discord — grant existe antes do primeiro login), `permissions String[]` (enum fechado), `granted_by_discord_user_id`, `granted_at`, `revoked_at?`, `note?`. **Sem linha OWNER aqui**: dono é derivado de `OWNER_DISCORD_ID` + tabela `owner_bootstrap` (ver 10).

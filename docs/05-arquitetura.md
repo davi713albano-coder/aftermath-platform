@@ -68,7 +68,7 @@ SSE (route handler Node, `runtime='nodejs'`, heartbeat 25 s, `Last-Event-ID`) pa
 2. Route handler valida Zod + permissão (banco) → chama `core.match.finish()` dentro de transação Prisma:
    - `UPDATE matches SET status='COMPLETED', winner_team_id=..., ended_at=now(), duration_seconds=... WHERE id=? AND status='IN_PROGRESS'` → `rowCount===1` obrigatório;
    - avança vencedora no confronto seguinte; grava `match_events` (histórico) e `audit_logs`;
-   - insere `outbox_events` (match_finished) — mesma transação.
+   - insere `outbox_events` (`match.finished`) — mesma transação.
 3. Commit. Resposta 200 com o estado novo.
 4. Worker consome outbox → publica no canal do Discord → marca `DELIVERED` + `discord_message_id`. Falha → retry com backoff; `DEAD` após N tentativas → alarme.
 5. SSE empurra snapshot do chaveamento; clientes atualizam.

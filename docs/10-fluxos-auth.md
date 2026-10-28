@@ -27,7 +27,7 @@ Validações de callback: `state` confere; `code` usado uma vez; erro do Discord
 Registro prévio (fase P1): app em `create.roblox.com/dashboard/credentials` com redirect `https://<domínio>/api/v1/roblox/callback` (HTTPS obrigatório fora de localhost) e escopos `openid profile`. **App não aprovado = limite de 10 usuários** → solicitar aprovação de produção imediatamente.
 
 Fluxo:
-1. Usuário autenticado clica "Vincular Roblox" → `POST /roblox/link/start` → server gera `state` assinado (HMAC com segredo do servidor, contém `userId`, expira em 10 min, uso único) e redireciona para `https://apis.roblox.com/oauth/v1/authorize?client_id=…&redirect_uri=…&scope=openid%20profile&response_type=code&state=…&nonce=…`.
+1. Usuário autenticado clica "Vincular Roblox" → **`GET /api/v1/roblox/link/start`** (navegação sempre via GET; resposta **302**): server gera `state` assinado (HMAC com segredo do servidor, contém `userId`, expira em 10 min, uso único) e responde `302 Location: https://apis.roblox.com/oauth/v1/authorize?client_id=…&redirect_uri=…&scope=openid%20profile&response_type=code&state=…&nonce=…`.
 2. Callback: valida `state` + `nonce` → `POST /oauth/v1/token` (client_secret_basic) → `GET /oauth/v1/userinfo`.
 3. Extrai: `sub` (Roblox ID), `preferred_username`, `name`, `picture`, `created_at` [CONFIRMADO].
 4. Upsert `roblox_accounts` com invariantes:

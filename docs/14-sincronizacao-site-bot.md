@@ -27,7 +27,7 @@ Já especificado em 05 (D4) e 07: transação de domínio insere `outbox_events`
 
 ## 14.5 Consistência em tempo real
 
-- Chaveamento/feed: SSE por tópico `tournament:{id}` ( eventos `bracket.updated`, `match.started/finished`, `feed.new`), heartbeat 25 s, reconexão com `Last-Event-ID`.
+- Chaveamento/feed: SSE em `/api/v1/stream/tournaments/:id` (eventos do catálogo 08 §8.10: `match.started`, `match.finished`, `draw.confirmed`, `bracket.updated`, `tournament.announcement_published`), heartbeat 25 s, reconexão com `Last-Event-ID`.
 - Fallback: se `EventSource` falhar 2× (proxy/CDN bloqueando), cliente alterna polling SWR 10 s automaticamente.
 - O bot consulta a API por demanda (interação) — não mantém cache de resultados; painéis V2 publicados no Discord são atualizados pelo worker (edit da mensagem) quando o evento correspondente é entregue.
 

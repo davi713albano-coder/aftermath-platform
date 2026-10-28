@@ -4,7 +4,7 @@ Domínio: **eliminação por sobrevivência** — sem placar. Campos: equipes, r
 
 ## 13.1 Iniciar
 
-**Site**: painel admin → lista de confrontos pendentes → botão Iniciar. **Discord**: `/admin start` → autocomplete de `matches.select` (busca por "R2 — EquipeA vs EquipeB", ≤25 resultados por tecla) ou string select paginado; confirmação por botão (2 cliques, zero digitação de nomes).
+**Site**: painel admin → lista de confrontos pendentes → botão Iniciar. **Discord**: `/admin start` → autocomplete alimentado por `GET /internal/bot/select/matches` (busca por "R2 — EquipeA vs EquipeB", ≤25 resultados por tecla) ou string select paginado; confirmação por botão (2 cliques, zero digitação de nomes).
 
 `POST /admin/matches/:id/start` — transação:
 ```sql
@@ -13,7 +13,7 @@ UPDATE matches
  WHERE id=:id AND status='PENDING'
    AND team_a_id IS NOT NULL AND team_b_id IS NOT NULL;
 ```
-`rowCount == 1` → grava `match_events(STARTED)` + `audit_logs` + `outbox(match_started)`; COMMIT; 200.
+`rowCount == 1` → grava `match_events(STARTED)` + `audit_logs` + `outbox` (`match.started`); COMMIT; 200.
 `rowCount == 0` → ROLLBACK → **409 `CONFLICT_MATCH_STATUS`** (já iniciada/concluída/cancelada — mensagem diz qual). Concorrência duplo-clique: a segunda chamada perde a corrida e recebe 409 — correto por design. Guardas adicionais: torneio `RUNNING`, admin com `matches.manage` (checado antes da tx).
 
 **Timestamp confiável**: relógio do servidor de aplicação (UTC, NTP). Se vários servidores: relógio do Postgres `now()` dentro da tx — fonte única e consistente [decisão: usar `now()` do banco].
@@ -31,9 +31,11 @@ UPDATE matches
 1. valida `winnerTeamId ∈ {team_a_id, team_b_id}` (senão 400/409);
 2. `UPDATE matches SET status='COMPLETED', ended_at=now(), winner_team_id=..., duration_seconds=EXTRACT(EPOCH FROM (now()-started_at)), recorded_by_user_id=:actor WHERE id=? AND status='IN_PROGRESS'` → rowCount 1 obrigatório;
 3. avança chaveamento (12.3) dentro da mesma tx;
-4. `match_events(FINISHED, before/after)`, `audit_logs`, `outbox(match_finished)`; COMMIT.
+4. `match_events(FINISHED, before/after)`, `audit_logs`, `outbox` (`match.finished`); COMMIT.
 
 Iniciar sem finalizar é permitido (estado persiste); finalizar sem iniciar → 409. Cancelamento (`/cancel`, razão obrigatória): partida volta ao fluxo admin — não avança chaveamento.
+
+**Partida final**: quando a partida finalizada é a da última rodada do bracket, a mesma transação encerra o torneio (`FINISHED`, campeão = vencedora), com audit + outbox `tournament.status_changed` (12, §12.3). **Sem placar em nenhuma etapa** e **sem exigência de evidências** — o registro é ato administrativo auditado (requisito do dono).
 
 ## 13.4 W.O. e desistência
 

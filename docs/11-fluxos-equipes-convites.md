@@ -19,11 +19,12 @@ Validações no backend (site ou bot — mesmo código):
 
 Envio da DM: o bot tenta DM **depois** do convite persistido. Falha (privacidade 50007 etc.) → `dm_state=FAILED`; convite continua `PENDING` e aceitável pelo site ou `/painel`. DM nunca é passo obrigatório.
 
-Aceitação (`POST /invites/:id/accept`) — transação única:
-1. `UPDATE invites SET status='ACCEPTED' WHERE id=? AND status='PENDING' AND expires_at>now()` → rowCount 1 obrigatório;
-2. inserir `team_members` (checa vagas + elegibilidade de novo, dentro da tx);
-3. respeitar invariante "1 equipe ativa por usuário por torneio" (partial unique + re-checagem na tx);
-4. audit + outbox (público apenas se config disser; convite em si é privado).
+Aceitação (`POST /invites/:id/accept`) — transação única, ordem fixa:
+0. **lock de contenção**: `SELECT pg_advisory_xact_lock(hashtextextended('team:' || :tournamentId || ':' || :inviteeId, 0))` — serializa accepts paralelos do mesmo usuário (mesmo que em equipes diferentes);
+1. `UPDATE invites SET status='ACCEPTED' WHERE id=? AND status='PENDING' AND expires_at>now()` → rowCount 1 obrigatório (senão 409 `CONFLICT_INVITE_STATE`);
+2. revalidar elegibilidade + vagas **dentro da tx** (titulares × suplentes conforme política);
+3. inserir `team_members` com `tournament_id` denormalizada — a **partial unique index** `(tournament_id, user_id) WHERE left_at IS NULL` (07, regra definitiva) bloqueia dupla participação ativa, **incluindo suplentes**;
+4. audit + outbox `team.member_joined` (feed público apenas se config disser; convite em si é privado).
 
 Recusa/cancelamento/expiração: transições de status com guarda `WHERE status='PENDING'`; expiração por job cron do worker (batch, idempotente).
 
@@ -42,7 +43,7 @@ Recusa/cancelamento/expiração: transições de status com guarda `WHERE status
 
 - Um usuário não pode estar em duas equipes ativas do mesmo torneio (invariante do banco; tentativa → `CONFLICT_TEAM_MEMBER`).
 - Troca de equipe = sair (deixa `left_at`) + ser aceito em outra; durante LOCKED, bloqueado para membros (admin pode liberar com audit).
-- Suplentes: participam da contagem de prontidão conforme política; podem ser promovidos a titular pelo owner enquanto DRAFT/READY (não em LOCKED).
+- Suplentes (decisão D-11): default **2** por equipe (`substitutes_per_team`, configurável); **não contam** para a prontidão mínima; também estão sujeitos à regra "1 participação ativa por torneio" (07 — inclusive suplentes); promoção a titular pelo owner enquanto DRAFT/READY (nunca em LOCKED).
 - Admin (`teams.manage`) pode remover membro / desqualificar equipe — sempre com razão + audit.
 
 ## 11.5 Fluxo no Discord (`/equipe`)
